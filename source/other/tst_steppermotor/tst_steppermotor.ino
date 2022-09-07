@@ -1,8 +1,8 @@
 /// здесь скетч по заупску шагового двигателя с редуктором и его драйвером из набора ардуино
-/// сделан полный шаг и полушаг - микрошаг надо думать как делать 
+/// сделан полный шаг и полушаг - микрошаг надо думать как делать
 
 
-#define PPZ 2   // это настройка скорости в милисекундах - меньше 2 милисекунд нельзя - иначе в полном шаге мотор не будет работать
+//#define dl 2   // это настройка скорости в милисекундах - меньше 2 милисекунд нельзя - иначе в полном шаге мотор не будет работать
 
 void setup() {
   // put your setup code here, to run once:
@@ -29,180 +29,168 @@ void setup() {
 
 
 //==== шаговый режим======
-
-void leftF()
+void leftF(int dl = 2000)
 {
   digitalWrite(8,  1);
   digitalWrite(9,  0);
   digitalWrite(10, 0);
   digitalWrite(11, 1);
-  delay(PPZ);
+  delayMicroseconds(dl);
 
   digitalWrite(8,  1);
   digitalWrite(9,  1);
   digitalWrite(10, 0);
   digitalWrite(11, 0);
-  delay(PPZ);
+  delayMicroseconds(dl);
 
   digitalWrite(8,  0);
   digitalWrite(9,  1);
   digitalWrite(10, 1);
   digitalWrite(11, 0);
-  delay(PPZ);
+  delayMicroseconds(dl);
 
   digitalWrite(8,  0);
   digitalWrite(9,  0);
   digitalWrite(10, 1);
   digitalWrite(11, 1);
-  delay(PPZ);
-
+  delayMicroseconds(dl);
 }
 
-void rightF()
+void rightF(int dl = 2000)
 {
   digitalWrite(8,  0);
   digitalWrite(9,  0);
   digitalWrite(10, 1);
   digitalWrite(11, 1);
-  delay(PPZ);
+  delayMicroseconds(dl);
+
   digitalWrite(8,  0);
   digitalWrite(9,  1);
   digitalWrite(10, 1);
   digitalWrite(11, 0);
-  delay(PPZ);
+  delayMicroseconds(dl);
 
   digitalWrite(8,  1);
   digitalWrite(9,  1);
   digitalWrite(10, 0);
   digitalWrite(11, 0);
-  delay(PPZ); 
+  delayMicroseconds(dl);
 
   digitalWrite(8,  1);
   digitalWrite(9,  0);
   digitalWrite(10, 0);
   digitalWrite(11, 1);
-  delay(PPZ);
-  
-  
+  delayMicroseconds(dl);
 }
 
 
 //==== полушаговый режим======
 
 
-void left()
+void left(int dl = 2)
 {
   digitalWrite(8, 1);
   digitalWrite(9, 0);
   digitalWrite(10, 0);
   digitalWrite(11, 1);
-  delay(PPZ);
+  delay(dl);
 
   digitalWrite(8, 1);
   digitalWrite(9, 0);
   digitalWrite(10, 0);
   digitalWrite(11, 0);
-  delay(PPZ);
+  delay(dl);
 
   digitalWrite(8, 1);
   digitalWrite(9, 1);
   digitalWrite(10, 0);
   digitalWrite(11, 0);
-  delay(PPZ);
+  delay(dl);
 
   digitalWrite(8, 0);
   digitalWrite(9, 1);
   digitalWrite(10, 0);
   digitalWrite(11, 0);
-  delay(PPZ);
-
+  delay(dl);
 
   digitalWrite(8, 0);
   digitalWrite(9, 1);
   digitalWrite(10, 1);
   digitalWrite(11, 0);
-  delay(PPZ);
-
+  delay(dl);
 
   digitalWrite(8, 0);
   digitalWrite(9, 0);
   digitalWrite(10, 1);
   digitalWrite(11, 0);
-  delay(PPZ);
+  delay(dl);
 
   digitalWrite(8, 0);
   digitalWrite(9, 0);
   digitalWrite(10, 1);
   digitalWrite(11, 1);
-  delay(PPZ);
-
-
+  delay(dl);
 
   digitalWrite(8, 0);
   digitalWrite(9, 0);
   digitalWrite(10, 0);
   digitalWrite(11, 1);
-  delay(PPZ);
-
-
-
-
-
+  delay(dl);
 
 }
 
 
 
-void right()
+void right(int dl = 2)
 {
 
   digitalWrite(8, 0);
   digitalWrite(9, 0);
   digitalWrite(10, 0);
   digitalWrite(11, 1);
-  delay(PPZ);
+  delay(dl);
 
   digitalWrite(8, 0);
   digitalWrite(9, 0);
   digitalWrite(10, 1);
   digitalWrite(11, 1);
-  delay(PPZ);
+  delay(dl);
 
   digitalWrite(8, 0);
   digitalWrite(9, 0);
   digitalWrite(10, 1);
   digitalWrite(11, 0);
-  delay(PPZ);
+  delay(dl);
 
   digitalWrite(8, 0);
   digitalWrite(9, 1);
   digitalWrite(10, 1);
   digitalWrite(11, 0);
-  delay(PPZ);
+  delay(dl);
 
   digitalWrite(8, 0);
   digitalWrite(9, 1);
   digitalWrite(10, 0);
   digitalWrite(11, 0);
-  delay(PPZ);
+  delay(dl);
 
   digitalWrite(8, 1);
   digitalWrite(9, 1);
   digitalWrite(10, 0);
   digitalWrite(11, 0);
-  delay(PPZ);
+  delay(dl);
 
   digitalWrite(8, 1);
   digitalWrite(9, 0);
   digitalWrite(10, 0);
   digitalWrite(11, 0);
-  delay(PPZ);
+  delay(dl);
 
   digitalWrite(8, 1);
   digitalWrite(9, 0);
   digitalWrite(10, 0);
   digitalWrite(11, 1);
-  delay(PPZ);
+  delay(dl);
 }
 
 
@@ -210,44 +198,49 @@ void right()
 
 void loop() {
   // put your main code here, to run repeatedly:
-int i;
+  int i;
+  while (1) {
+    Serial.println("max speed test");
+    for (int i = 2000; i > 1300; i = i - 50) {
+      Serial.println("speed => " + String(i));
+      for (int j = 0 ; j < 128; j++)
+      {
+        leftF(i);
+      }
+    }
+  }
 
 
-  while (1)
+  while (0)
   {
 
     Serial.println("Full step test left side...");
 
-    
     for ( i = 0 ; i < 512; i++)
     {
-      leftF();
+      leftF(2);
     }
-    
+
     Serial.println("Full step test right side...");
-    
+
     for ( i = 0 ; i < 512; i++)
     {
-
+      rightF(2);
     }
 
     Serial.println("Half step test left side...");
     for ( i = 0 ; i < 512; i++)
     {
-      left();
+      left(2);
     }
 
     Serial.println("Half step test right side...");
 
     for ( i = 0 ; i < 512; i++)
     {
-      right();
+      right(2);
     }
 
   }
 
 }
-
-
-
-
