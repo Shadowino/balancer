@@ -199,6 +199,32 @@ void right(int dl = 2)
 void loop() {
   // put your main code here, to run repeatedly:
   int i;
+  while(1){
+      digitalWrite(8, 1);
+      digitalWrite(9, 1);
+      digitalWrite(10, 1);
+      digitalWrite(11, 1);
+      delay(1);
+      digitalWrite(8, 0);
+      digitalWrite(9, 0);
+      digitalWrite(10, 0);
+      digitalWrite(11, 0);
+      delay(2);
+//      digitalWrite(9, 0);
+      digitalWrite(8, 1);
+      delay(2);
+      digitalWrite(8, 0);
+      digitalWrite(9, 1);
+      delay(2);
+      digitalWrite(9, 0);
+      digitalWrite(10, 1);
+      delay(2);
+      digitalWrite(10, 0);
+      digitalWrite(11, 1);
+      delay(2);
+  }
+  
+  
   while (1) {
     Serial.println("max speed test");
     for (int i = 2000; i > 1300; i = i - 50) {

@@ -26,11 +26,11 @@ void loop() {
         accgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
 
         // преобразование в единицы гравитации при настройках 1G
-        //accy = ax /4096.0;
-        //  границы от -1G до +1G
-        //accy = clamp(accy, -1.0, 1.0);
+        accy = ax /4096.0;
+        //границы от -1G до +1G
+        accy = clamp(accy, -1.0, 1.0);
         //accy = ax / 32768 * 250;
-        accy = ax / 4096 * 250;
+        //accy = ax / 4096 * 250;
         // получить значение в градусах
         if( accy >= 0){
             anglex = 90 - TO_DEG*acos(accy);
