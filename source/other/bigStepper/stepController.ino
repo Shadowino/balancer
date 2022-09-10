@@ -22,7 +22,6 @@ void ini(){
  pinMode(DIR, OUTPUT); 
  pinMode(STP, OUTPUT); 
  pinMode(ENA, OUTPUT);
- poewrON();
 }
 
 void left(){
@@ -38,12 +37,12 @@ void setDir(bool dir){
 }
 
 void doStep(){
-  
+  digitalWrite(ENA, 1);
 }
 
 void powerON(){
-  
+  digitalWrite(ENA, 1);
 }
 void powerOFF(){
-  
+  digitalWrite(ENA, 0);
 }
