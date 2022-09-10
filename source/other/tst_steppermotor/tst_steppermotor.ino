@@ -9,6 +9,8 @@
 
 void leftF(int dl = 2000);
 void rightF(int dl = 2000);
+void leftM(int dl = 2000);
+void rightM(int dl = 2000);
 void left(int dl = 2);
 void right(int dl = 2);
 
@@ -109,5 +111,4 @@ void loop() {
     }
 
   }
-
 }
