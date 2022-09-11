@@ -23,11 +23,23 @@ void setup() {
 }
 int i;
 void loop() {
-  for (i = 0; i < 200*STPMUL; i++) {
-    left();
-  }
-  for (i = 0; i < 200*STPMUL; i++) {
-    right();
-  }
-  delay(1000);
+  digitalWrite(STP, 1);
+  digitalWrite(STP, 0);
+  
+//  for (i = 0; i < 200 * STPMUL; i++) {
+//    left();
+//  }
+//  for (i = 0; i < 200 * STPMUL; i++) {
+//    right();
+//  }
+////  delay(1000);
+//  setDir(1);
+//  for (i = 0; i < 200 * STPMUL; i++) {
+//    doStep();
+//  }
+//  setDir(0);
+//  for (i = 0; i < 200 * STPMUL; i++) {
+//    doStep();
+// }
+ 
 }
