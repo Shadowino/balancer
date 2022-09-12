@@ -26,7 +26,7 @@ int main() {
       _delay_us(SPD);
     }
     _delay_ms(500);
-//    PORTB |= 1 << DIR;
+    PORTB |= 1 << DIR;
     for (int i = 3200; i > 0; i--) {
       PORTB |= 1 << STP;
       _delay_us(SPD);
