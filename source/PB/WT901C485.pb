@@ -171,8 +171,8 @@ End
 ; EnableThread
 ; EnableXP
 ; IDE Options = PureBasic 5.11 (Windows - x64)
-; CursorPosition = 144
-; FirstLine = 21
-; Folding = 5
+; CursorPosition = 145
+; FirstLine = 85
+; Folding = 9
 ; EnableThread
 ; EnableXP
