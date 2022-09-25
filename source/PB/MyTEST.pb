@@ -1,8 +1,14 @@
-﻿
+﻿COMPORT.s = "COM5"
+
 
 OpenConsole()
-OpenSerialPort(0, "COM5", 115200, #PB_SerialPort_NoParity, 8, 1, #PB_SerialPort_NoHandshake, 1024, 1024)
-;SerialPortTimeouts(0, 100, 100, 10, 10, 100)
+If OpenSerialPort(0, COMPORT, 115200, #PB_SerialPort_NoParity, 8, 1, #PB_SerialPort_NoHandshake, 1024, 1024)
+Else
+  MessageRequester("Err", "Serial port " + COMPORT + " not open!")  
+  End
+EndIf
+
+  ;SerialPortTimeouts(0, 100, 100, 10, 10, 100)
 
 Dim Buff.a(7)
 Buff(0) = $50
@@ -17,7 +23,7 @@ Buff(7) = $86
 ax.u = 0
 ay.u = 0
 az.u = 0
-Dim answer.a(10)
+Dim answer.a(20)
 
 
 
@@ -30,14 +36,19 @@ Wend
 While 1
   While AvailableSerialPortInput(0) = 0
     WriteSerialPortData(0, @Buff(), 8)
-    Delay(10)
+    Delay(20)
   Wend
   
   ;If ReadSerialPortData(0, @bite, 1) ; связь с датчиком есть
   ;  PrintN("$" + RSet(Hex(bite), 2, "0")) 
   ;EndIf
   ans.s = ""
-  For i = 0 To 10
+  ;   Debug 
+;   cnt = AvailableSerialPortInput(0)
+;   Delay(10)
+  cnt = AvailableSerialPortInput(0) - 1
+  Debug cnt
+  For i = 0 To cnt
     ReadSerialPortData(0, @bite, 1)
     answer(i) = bite
     ;Print(" 0x" + RSet(Hex(bite), 2, "0")) 
@@ -57,6 +68,6 @@ While 1
 Wend
 
 ; IDE Options = PureBasic 5.11 (Windows - x64)
-; CursorPosition = 38
-; FirstLine = 10
+; CursorPosition = 48
+; FirstLine = 26
 ; EnableXP
