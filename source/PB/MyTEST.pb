@@ -1,4 +1,4 @@
-﻿COMPORT.s = "COM5"
+﻿COMPORT.s = "COM6"
 
 
 OpenConsole()
@@ -68,6 +68,5 @@ While 1
 Wend
 
 ; IDE Options = PureBasic 5.11 (Windows - x64)
-; CursorPosition = 48
-; FirstLine = 26
+; CursorPosition = 4
 ; EnableXP
