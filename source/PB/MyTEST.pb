@@ -1,4 +1,4 @@
-﻿COMPORT.s = "COM6"
+﻿COMPORT.s = "COM10"
 
 
 OpenConsole()
@@ -50,12 +50,11 @@ Procedure SerialConnect(x.i)
     If SendArd = 1
       ConsoleColor(10, 0)
       Print("Arduino MSG Sending...")
-      While AvailableSerialPortInput(0) = 0
-        WriteSerialPortData(0, @ARmsg(), 8)
-        Delay(20)
-      Wend
-      PrintN("OK")
+      Print("\tsend..." + Str(ARmsg(2)) +" | "+ Str(ARmsg(3)))
+      WriteSerialPortData(0, @ARmsg(), 7)
+      PrintN("\tOK")
       ConsoleColor(7,0)
+      SendArd = 0
     EndIf
     
     While AvailableSerialPortInput(0) = 0
@@ -71,7 +70,7 @@ Procedure SerialConnect(x.i)
     ;   cnt = AvailableSerialPortInput(0)
     ;   Delay(10)
     cnt = AvailableSerialPortInput(0) - 1
-    Debug cnt
+;     Debug cnt
     For i = 0 To cnt
       ReadSerialPortData(0, @bite, 1)
       answer(i) = bite
@@ -93,7 +92,7 @@ Procedure SerialConnect(x.i)
 EndProcedure
 
 
-OpenWindow(0, 0, 0, 530, 150, "Control Panel", #PB_Window_ScreenCentered | #PB_Window_SystemMenu)
+OpenWindow(0, 0, 0, 530, 180, "Control Panel", #PB_Window_ScreenCentered | #PB_Window_SystemMenu)
 SerialTH = CreateThread(@SerialConnect(),1)
 TextGadget(0,10,10, 250, 20, "Angle X", #PB_Text_Border)
 TextGadget(1,10,40, 250, 20, "Angle Y", #PB_Text_Border)
@@ -102,22 +101,31 @@ StringGadget(3,270,10, 250, 20, "0", #PB_String_Numeric)
 StringGadget(4,270,40, 250, 20, "0", #PB_String_Numeric)
 StringGadget(5,270,70, 250, 20, "0", #PB_String_Numeric)
 ButtonGadget(6,10,100,510,40,"Send Parameters")
+ButtonGadget(7,10,150,250,20,"Start")
+ButtonGadget(8,270,150,250,20,"Stop")
 
 Repeat 
   eve = WaitWindowEvent()
   If eve = #PB_Event_Gadget
     Select EventGadget()
       Case 6
-        ARmsg(2) = $0F & Val(GetGadgetText(3))
-        ARmsg(3) = $F0 & Val(GetGadgetText(3))
-        ARmsg(4) = $0F & Val(GetGadgetText(4))
-        ARmsg(5) = $F0 & Val(GetGadgetText(4))
-        ARmsg(6) = $0F & Val(GetGadgetText(5))
-        ARmsg(7) = $F0 & Val(GetGadgetText(5))
+        ARmsg(1) = $06
+        ARmsg(2) = $00FF & (Val(GetGadgetText(3)) * 182)
+        ARmsg(3) = ($FF00 & (Val(GetGadgetText(3)) * 182)) >> 8
+        ARmsg(4) = $00FF & (Val(GetGadgetText(4)) * 182)
+        ARmsg(5) = ($FF00 & (Val(GetGadgetText(4)) * 182)) >> 8
+        ARmsg(6) = $00FF & (Val(GetGadgetText(5)) * 182)
+        ARmsg(7) = ($FF00 & (Val(GetGadgetText(5)) * 182)) >> 8
         SendArd = 1
         ConsoleColor(10, 0)
         PrintN("Arduino MSG Ready")
         ConsoleColor(7,0)
+      Case 7
+        SendArd = 1
+        ARmsg(1) = $01
+      Case 8
+        SendArd = 1
+        ARmsg(1) = $02
     EndSelect
   EndIf
   
@@ -128,8 +136,8 @@ Until eve = #PB_Event_CloseWindow
 
 KillThread(SerialTH)
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 128
-; FirstLine = 97
+; IDE Options = PureBasic 5.11 (Windows - x86)
+; CursorPosition = 50
+; FirstLine = 50
 ; Folding = -
 ; EnableXP
