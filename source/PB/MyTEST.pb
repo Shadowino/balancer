@@ -47,6 +47,7 @@ Global Dim answer.a(20)
 
 Procedure SerialConnect(x.i)
   While 1
+    Delay(1)
     If SendArd = 1
       ConsoleColor(10, 0)
       Print("Arduino MSG Sending...")
@@ -137,7 +138,7 @@ Until eve = #PB_Event_CloseWindow
 KillThread(SerialTH)
 
 ; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 50
-; FirstLine = 50
+; CursorPosition = 36
+; FirstLine = 28
 ; Folding = -
 ; EnableXP
