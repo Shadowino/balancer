@@ -124,8 +124,8 @@ Until eve = #PB_Event_CloseWindow
 
 KillThread(SerialTH) ; kill Serial event thread
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 124
-; FirstLine = 92
+; IDE Options = PureBasic 5.11 (Windows - x86)
+; CursorPosition = 58
+; FirstLine = 42
 ; Folding = -
 ; EnableXP
