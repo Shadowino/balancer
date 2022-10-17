@@ -32,6 +32,7 @@ ARmsg(5) = $00 ;Low Arduino angle Y
 ARmsg(6) = $00 ;High Arduino angle Z
 ARmsg(7) = $00 ;Low Arduino angle Z
 
+Global TODEG = 182.041
 Global SendArd = 0;
 Global ax.u = 0
 Global ay.u = 0
@@ -40,15 +41,10 @@ Global Dim answer.a(20)
 
 
 
-; While AvailableSerialPortInput(0) = 0
-;   WriteSerialPortData(0, @WTqwst(), 8)
-;   Delay(200)  
-; Wend
-
-Procedure SerialConnect(x.i)
+Procedure SerialConnect(x.i) ;procedure thread
   While 1
     Delay(1)
-    If SendArd = 1
+    If SendArd = 1 ; send arduino message if available
       ConsoleColor(10, 0)
       Print("Arduino MSG Sending...")
       Print("\tsend..." + Str(ARmsg(2)) +" | "+ Str(ARmsg(3)))
@@ -58,43 +54,34 @@ Procedure SerialConnect(x.i)
       SendArd = 0
     EndIf
     
-    While AvailableSerialPortInput(0) = 0
+    While AvailableSerialPortInput(0) = 0 ; send qwestion for WT901
       WriteSerialPortData(0, @WTqwst(), 8)
       Delay(20)
     Wend
     
-    ;If ReadSerialPortData(0, @bite, 1) ; связь с датчиком есть
-    ;  PrintN("$" + RSet(Hex(bite), 2, "0")) 
-    ;EndIf
-    ans.s = ""
-    ;   Debug 
-    ;   cnt = AvailableSerialPortInput(0)
-    ;   Delay(10)
-    cnt = AvailableSerialPortInput(0) - 1
-;     Debug cnt
-    For i = 0 To cnt
+    ans.s = "" ;answer output console
+    cnt = AvailableSerialPortInput(0) - 1 ; count available bytes
+    For i = 0 To cnt ; read available data and add this in console output
       ReadSerialPortData(0, @bite, 1)
       answer(i) = bite
-      ;Print(" 0x" + RSet(Hex(bite), 2, "0")) 
-      ans = ans + " 0x" + RSet(Hex(bite), 2, "0")
+      ans = ans + " 0x" + RSet(Hex(bite), 2, "0") ; console output bytes
     Next
-    ans = ans + " => " 
-    ;Print(" => ")
+    ans = ans + " => "  ;
     
-    ax = ((answer(3) << 8) | answer(4)) 
+    ax = ((answer(3) << 8) | answer(4)) ; parsing WT901 answer
     ay = ((answer(5) << 8) | answer(6))
     az = ((answer(7) << 8) | answer(8))
-    ans = ans + RSet(StrF(ax / 182, 2), 6, "0") + " | " + RSet(StrF(ay  / 182 , 2), 6, "0") + " | " + RSet(StrF(az  / 182, 2), 6, "0")
-    ;Print(RSet(StrF(ax / 182, 2), 6, "0") + " | " + RSet(StrF(ay  / 182 , 2), 6, "0") + " | " + RSet(StrF(az  / 182, 2), 6, "0"))
-    PrintN(ans) 
     
-    ;EndIf
+    ; add angle values in console output
+    ans = ans + RSet(StrF(ax / TODEG, 2), 6, "0") + " | " + RSet(StrF(ay  / TODEG , 2), 6, "0") + " | " + RSet(StrF(az  / TODEG, 2), 6, "0")
+    PrintN(ans) ;output console
+    
   Wend
 EndProcedure
 
-
+;window init
 OpenWindow(0, 0, 0, 530, 180, "Control Panel", #PB_Window_ScreenCentered | #PB_Window_SystemMenu)
-SerialTH = CreateThread(@SerialConnect(),1)
+SerialTH = CreateThread(@SerialConnect(),1) ; start thread Serial event parser
 TextGadget(0,10,10, 250, 20, "Angle X", #PB_Text_Border)
 TextGadget(1,10,40, 250, 20, "Angle Y", #PB_Text_Border)
 TextGadget(2,10,70, 250, 20, "Angle Z (optional)", #PB_Text_Border)
@@ -106,27 +93,27 @@ ButtonGadget(7,10,150,250,20,"Start")
 ButtonGadget(8,270,150,250,20,"Stop")
 
 Repeat 
-  eve = WaitWindowEvent()
+  eve = WaitWindowEvent() ; wait window event optimizate
   If eve = #PB_Event_Gadget
     Select EventGadget()
-      Case 6
-        ARmsg(1) = $06
+      Case 6 ; "Send Parameters" button, create and send arduno message
+        ARmsg(1) = $06 ; create arduino message, | see message struct on line 25 |
         ARmsg(2) = $00FF & (Val(GetGadgetText(3)) * 182)
         ARmsg(3) = ($FF00 & (Val(GetGadgetText(3)) * 182)) >> 8
         ARmsg(4) = $00FF & (Val(GetGadgetText(4)) * 182)
         ARmsg(5) = ($FF00 & (Val(GetGadgetText(4)) * 182)) >> 8
         ARmsg(6) = $00FF & (Val(GetGadgetText(5)) * 182)
         ARmsg(7) = ($FF00 & (Val(GetGadgetText(5)) * 182)) >> 8
-        SendArd = 1
-        ConsoleColor(10, 0)
-        PrintN("Arduino MSG Ready")
+        SendArd = 1 ; flag available message
+        ConsoleColor(10, 0) 
+        PrintN("Arduino MSG Ready") ; console Output debug
         ConsoleColor(7,0)
-      Case 7
+      Case 7 ; startmessage
+        ARmsg(1) = $01 ; start command
         SendArd = 1
-        ARmsg(1) = $01
-      Case 8
+      Case 8 ; stop message
+        ARmsg(1) = $02 ; stop command
         SendArd = 1
-        ARmsg(1) = $02
     EndSelect
   EndIf
   
@@ -135,10 +122,10 @@ Repeat
 Until eve = #PB_Event_CloseWindow
 
 
-KillThread(SerialTH)
+KillThread(SerialTH) ; kill Serial event thread
 
-; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 36
-; FirstLine = 28
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 124
+; FirstLine = 92
 ; Folding = -
 ; EnableXP
