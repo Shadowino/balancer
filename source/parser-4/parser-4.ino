@@ -1,5 +1,18 @@
 #include <SoftwareSerial.h>
 
+/*
+  ranges
+  angle by WT901 -> 0-65535 (uint16)
+  angle Phisics  -> 0-360.00
+  angle Stepper  -> 0-xxx
+  converting
+  WT901 -> Phisics : WT901 / 182.041 (TOSTEP)
+  phisics -> WT901 : Phisics * 182.041 (TOSTEP)
+  WT901 -> Stepper : WT901 / TOSTEP
+  Stepper -> WT901 : Stepper * TOSTEP
+  TOSTEP = 65535(int16max) / "number step for full circle"
+*/
+
 #define WAITHSACT false    // wait hardware serial activate
 #define WAITSSACT false   // wait software serial activate
 #define HSSPEED 115200    // hardware serial speed
@@ -8,10 +21,11 @@
 #define TODEG 182.041
 #define STPTRIG 183*5   // step trigger 182.041(6) default
 #define STPSPD 100     // Step time / 2
-#define STPCYCLEY 10600   // step for full cycle default 3200
-#define STPCYCLEX 3200   // step for full cycle
+#define STPCYCLEY 10600   // number step for full cycle default 3200
+#define STPCYCLEX 3200   // number step for full cycle default 3200
 #define STPXRDC 1   // motorX Reducer
 #define STPYRDC 1   // motorY Reducer
+#define OFFSETY (40*TODEG)   // motorY Ofssets (Available angle*TODEG)
 #define AXINVERS false
 #define AYINVERS false
 #define AZINVERS true
@@ -22,6 +36,7 @@
 // MY*** -> motorY controller
 // DB*   -> DeBug channel
 // SS**   -> Software Serial RX TX
+
 #define MXSTP 0
 #define MXDIR 1
 #define MXENA 2
@@ -36,14 +51,16 @@
 
 SoftwareSerial debug(SSRX, SSTX);
 
-int lim(int val, int mx){ return (val > mx) ? mx : val;}
+int lim(int val, int mx) {
+  return (val > mx) ? mx : val;
+}
 
 void setup() {
   Serial.begin(HSSPEED);
   debug.begin(SSSPEED);
   Serial.setTimeout(5);
   debug.setTimeout(5);
-  debug.print("\nboot...");
+  //  debug.print("\nboot...");
 
   DDRB |= (1 << MXSTP);
   DDRB |= (1 << MXDIR);
@@ -63,7 +80,8 @@ void setup() {
   PORTB &= ~(1 << MYDIR);
   PORTB &= ~(1 << MYENA);
   delayMicroseconds(50);
-  debug.println("\tOK");
+  //  debug.println("\tOK");
+  debug.println("PostionY AngleY ofssetY TOSTP numstpY directY");
 }
 
 uint8_t answer[10];
@@ -88,20 +106,26 @@ void loop() {
       deb = "";
       while (!Serial.available()) {}
       if (Serial.read() == 0x06) {
+
         Serial.readBytes(answer, 8);
         AX = (int16_t)(answer[1] | (answer[0] << 8));// / 182.04;
         AY = (int16_t)(answer[3] | (answer[2] << 8));// / 182.04; //?
         AZ = (uint16_t)(answer[5] | (answer[4] << 8));// / 182.04;
+        
         AY -= DY; // fix with default position
         //        SCX = abs(((AX + DX) - PX)) / TOSTEPX;
         SCX = abs(AX) / TOSTEPX;
         //        SCY = abs(((AY + DY) - PY)) / TOSTEPY;
         SCY = abs(AY) / TOSTEPY;
-        SCY = lim(SCY, 90);
+        SCY = lim(SCY, 80);
         stpnum = (SCX > SCY) ? SCX : SCY;
-        deb += String(SCY) + "\t" + ((AY > 0) ? '+' : '-');
+        deb += String(PX) + ' ' + String(AY - DY) + ' ' + String(DY) + ' ' + TOSTEPY + ' ';
+        deb += String(SCY) + ' ' + (String)((AY > 0) ? 1 : -1);
         debug.println(deb);
+
         if (enabled and stpnum > 20) {
+          PX = AX + DX;
+          PY = AY + DY;
           if (AX < 0) PORTB |= (1 << MXDIR);
           else PORTB &= ~(1 << MXDIR);
           if (AY < 0) PORTB |= (1 << MYDIR);
@@ -116,8 +140,6 @@ void loop() {
             delayMicroseconds(STPSPD);
           }
 
-          PX = AX + DX;
-          PY = AY + DY;
         }
       }
       else {
