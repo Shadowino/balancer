@@ -18,8 +18,9 @@
 #define HSSPEED 115200    // hardware serial speed
 #define SSSPEED 115200    // software serial speed
 #define USESSDEB true   // sofwareSerial debug
+
 #define TODEG 182.041
-#define STPTRIG 183*5   // step trigger 182.041(6) default
+#define STPTRIG 20   // step trigger 182.041(6) default
 #define STPSPD 100     // Step time / 2
 #define STPCYCLEY 10600   // number step for full cycle default 3200
 #define STPCYCLEX 3200   // number step for full cycle default 3200
@@ -31,6 +32,7 @@
 #define AZINVERS true
 #define TOSTEPY (65535/STPCYCLEY)
 #define TOSTEPX (65535/STPCYCLEX)
+#define STPLIM 90
 // pinout (use PD 0~7 and PB 8~13 like PD0~7 and PB0~5)
 // MX*** -> motorX controller
 // MY*** -> motorY controller
@@ -113,29 +115,23 @@ void loop() {
         AZ = (uint16_t)(answer[5] | (answer[4] << 8));// / 182.04;
         
         AY -= DY; // fix with default position
-        //        SCX = abs(((AX + DX) - PX)) / TOSTEPX;
         SCX = abs(AX) / TOSTEPX;
-        //        SCY = abs(((AY + DY) - PY)) / TOSTEPY;
         SCY = abs(AY) / TOSTEPY;
-        SCY = lim(SCY, 80);
+        SCY = lim(SCY, STPLIM);
         stpnum = (SCX > SCY) ? SCX : SCY;
-        deb += String(PX) + ' ' + String(AY - DY) + ' ' + String(DY) + ' ' + TOSTEPY + ' ';
+        deb += String(AY - DY) + ' ' + String(DY) + ' ' + TOSTEPY + ' ';
         deb += String(SCY) + ' ' + (String)((AY > 0) ? 1 : -1);
         debug.println(deb);
 
         if (enabled and stpnum > 20) {
-          PX = AX + DX;
-          PY = AY + DY;
           if (AX < 0) PORTB |= (1 << MXDIR);
           else PORTB &= ~(1 << MXDIR);
           if (AY < 0) PORTB |= (1 << MYDIR);
           else PORTB &= ~(1 << MYDIR);
 
           for (int stp = 0; stp < stpnum; stp++) {
-            //            if (stp <= SCX) PORTB |= (1 << MXSTP);
             if (stp <= SCY) PORTB |= (1 << MYSTP);
             delayMicroseconds(STPSPD);
-            //            PORTB &= ~(1 << MXSTP);
             PORTB &= ~(1 << MYSTP);
             delayMicroseconds(STPSPD);
           }
