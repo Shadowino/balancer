@@ -56,6 +56,7 @@ int lim(int val, int mx) {
 }
 
 void setup() {
+  delay(5000);
   Serial.begin(HSSPEED);
   debug.begin(SSSPEED);
   Serial.setTimeout(5);
@@ -81,7 +82,7 @@ void setup() {
   PORTB &= ~(1 << MYENA);
   delayMicroseconds(50);
   //  debug.println("\tOK");
-  debug.println("PostionY AngleY ofssetY TOSTP numstpY directY");
+  debug.println("AngleY ofssetY TOSTP numstpY directY ");
 }
 
 uint8_t answer[10];
