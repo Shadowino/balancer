@@ -22,7 +22,12 @@
 #define TODEG (65535/360.0)
 #define STPTODEG (STPCYCLEY/360.0)
 #define STPTRIG 20   // step trigger 20 default
-#define STPSPD 40     // Step time / 2
+#define STPSPD 40     // old ver. don`t work
+// speed => (1 step time) / 2 
+#define SSmax 45     // max speed / 2
+#define SSmin 30     // min speed / 2
+#define SSstr 40     // start speed / 2
+#define SSacc 30     // speed accelerate
 #define STPCYCLEY 28800   // number step for full cycle default 3200
 #define STPCYCLEX 3200   // number step for full cycle default 3200
 #define STPXRDC 1   // motorX Reducer
@@ -100,6 +105,25 @@ int stpnum;
 String deb;
 int enabled = true;
 
+
+inline void stepy(int n_stp){
+  int SPDcur = SSstr; // current speed start with start speed
+  for (int i = 0; i < n_stp; i++) { // number step cycle
+    PORTB &= ~(1 << MYSTP);
+    delayMicroseconds(SPDcur);
+    PORTB |= (1 << MYSTP);
+    delayMicroseconds(SPDcur-1);
+    if ( i % SSacc == 0) { // current speed update when `SSacc` step 
+      if (n_stp - i < (SSmax-SSmin)*SSacc) { // acelerate or slowdown
+        SScur = (SScur+1 > SSmax) ? SSmax : SScur; // slowdown
+      } else {
+        SScur = (SScur-1 < SSmin) ? SSmin : SScur; // accelerate
+      }
+    }
+  }
+}
+
+
 void loop() {
   if (Serial.available()) {
     recv = Serial.read();
@@ -126,12 +150,14 @@ void loop() {
           if (AY < 0) PORTB |= (1 << MYDIR);
           else PORTB &= ~(1 << MYDIR);
 
-          for (int stp = 0; stp < stpnum; stp++) {
-            if (stp <= SCY) PORTB |= (1 << MYSTP);
-            _delay_us(STPSPD);
-            PORTB &= ~(1 << MYSTP);
-            _delay_us(STPSPD);
-          }
+          stepy(SCY); // func steping with support acelarate
+//        //old step code
+//          for (int stp = 0; stp < stpnum; stp++) {
+//            if (stp <= SCY) PORTB |= (1 << MYSTP);
+//            _delay_us(STPSPD);
+//            PORTB &= ~(1 << MYSTP);
+//            _delay_us(STPSPD);
+//          }
 
         }
       }

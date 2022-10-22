@@ -89,7 +89,7 @@ inline void stepn(int n_stp){
       if (n_stp - i < (SPDmax-SPDmin)*SPDacc) {
         SPDcur = (SPDcur+1 > SPDmax) ? SPDmax : SPDcur;
       } else {
-        SPDcur = (SPDcur+1 < SPDmin) ? SPDmin : SPDcur;
+        SPDcur = (SPDcur-1 < SPDmin) ? SPDmin : SPDcur;
       }
     }
   }
