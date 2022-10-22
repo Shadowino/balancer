@@ -28,7 +28,7 @@
 #define SSmin 30     // min speed / 2
 #define SSstr 40     // start speed / 2
 #define SSacc 30     // speed accelerate
-#define STPCYCLEY 28800   // number step for full cycle default 3200
+#define STPCYCLEY 10400   // number step for full cycle default 3200
 #define STPCYCLEX 3200   // number step for full cycle default 3200
 #define STPXRDC 1   // motorX Reducer
 #define STPYRDC 1   // motorY Reducer
@@ -107,12 +107,12 @@ int enabled = true;
 
 
 inline void stepy(int n_stp){
-  int SPDcur = SSstr; // current speed start with start speed
+  int SScur = SSstr; // current speed start with start speed
   for (int i = 0; i < n_stp; i++) { // number step cycle
     PORTB &= ~(1 << MYSTP);
-    delayMicroseconds(SPDcur);
+    delayMicroseconds(SScur);
     PORTB |= (1 << MYSTP);
-    delayMicroseconds(SPDcur-1);
+    delayMicroseconds(SScur-1);
     if ( i % SSacc == 0) { // current speed update when `SSacc` step 
       if (n_stp - i < (SSmax-SSmin)*SSacc) { // acelerate or slowdown
         SScur = (SScur+1 > SSmax) ? SSmax : SScur; // slowdown

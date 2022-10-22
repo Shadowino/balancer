@@ -35,7 +35,7 @@ ARmsg(7) = $00 ;Low Arduino angle Z
 Global TODEG = 182.041
 Global SendArd = 0;
 Global ax.u = 0
-Global ay.u = 0
+Global ay.w = 0
 Global az.u = 0
 Global Dim answer.a(20)
 
@@ -51,7 +51,8 @@ Procedure draw(x.i)
   Wend  
 EndProcedure
 
-
+OpenSerialPort(1, "COM19", 115200, #PB_SerialPort_NoParity, 8, 1, #PB_SerialPort_NoHandshake, 1024, 1024)
+WriteSerialPortString(1, "AX AY AZ"+Chr(10))
 
 Procedure SerialConnect(x.i) ;procedure thread
   While 1
@@ -83,7 +84,7 @@ Procedure SerialConnect(x.i) ;procedure thread
     ax = ((answer(3) << 8) | answer(4)) ; parsing WT901 answer
     ay = ((answer(5) << 8) | answer(6))
     az = ((answer(7) << 8) | answer(8))
-    
+    WriteSerialPortString(1, StrF(ay/182.0416,3)+Chr(10))
     ; add angle values in console output
     ans = ans + RSet(StrF(ax / TODEG, 2), 6, "0") + " | " + RSet(StrF(ay  / TODEG , 2), 6, "0") + " | " + RSet(StrF(az  / TODEG, 2), 6, "0")
     PrintN(ans) ;output console
@@ -141,7 +142,7 @@ KillThread(SerialTH) ; kill Serial event thread
 KillThread(drawTH) ; kill Serial event thread
 
 ; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 47
-; FirstLine = 35
-; Folding = 0
+; CursorPosition = 79
+; FirstLine = 76
+; Folding = -
 ; EnableXP
