@@ -19,10 +19,11 @@
 #define SSSPEED 115200    // software serial speed
 #define USESSDEB true   // sofwareSerial debug
 
-#define TODEG 182.041
-#define STPTRIG 20   // step trigger 182.041(6) default
-#define STPSPD 100     // Step time / 2
-#define STPCYCLEY 10600   // number step for full cycle default 3200
+#define TODEG (65535/360.0)
+#define STPTODEG (STPCYCLEY/360.0)
+#define STPTRIG 20   // step trigger 20 default
+#define STPSPD 40     // Step time / 2
+#define STPCYCLEY 28800   // number step for full cycle default 3200
 #define STPCYCLEX 3200   // number step for full cycle default 3200
 #define STPXRDC 1   // motorX Reducer
 #define STPYRDC 1   // motorY Reducer
@@ -32,7 +33,7 @@
 #define AZINVERS true
 #define TOSTEPY (65535/STPCYCLEY)
 #define TOSTEPX (65535/STPCYCLEX)
-#define STPLIM 90
+#define STPLIM 270
 // pinout (use PD 0~7 and PB 8~13 like PD0~7 and PB0~5)
 // MX*** -> motorX controller
 // MY*** -> motorY controller
@@ -84,13 +85,13 @@ void setup() {
   PORTB &= ~(1 << MYENA);
   delayMicroseconds(50);
   //  debug.println("\tOK");
-  debug.println("AngleY ofssetY TOSTP numstpY directY ");
+  debug.println("AngleY numstpY ");
 }
 
 uint8_t answer[10];
 uint8_t qwery[10];
 uint8_t recv, Lrecv;
-int AX, AY, AZ;
+int16_t AX, AY, AZ;
 int PX, PY, PZ;
 int DX, DY, DZ;
 int SCX;
@@ -106,7 +107,6 @@ void loop() {
       Lrecv = recv;
     }
     else if (Lrecv == 0x50 and recv == 0x03) {
-      deb = "";
       while (!Serial.available()) {}
       if (Serial.read() == 0x06) {
 
@@ -114,16 +114,12 @@ void loop() {
         AX = (int16_t)(answer[1] | (answer[0] << 8));// / 182.04;
         AY = (int16_t)(answer[3] | (answer[2] << 8));// / 182.04; //?
         AZ = (uint16_t)(answer[5] | (answer[4] << 8));// / 182.04;
-        
         AY -= DY; // fix with default position
-        SCX = abs(AX) / TOSTEPX;
         SCY = abs(AY) / TOSTEPY;
-        SCY = lim(SCY, STPLIM);
         stpnum = (SCX > SCY) ? SCX : SCY;
-        deb += String(AY - DY) + ' ' + String(DY) + ' ' + TOSTEPY + ' ';
-        deb += String(SCY) + ' ' + (String)((AY > 0) ? 1 : -1);
-        debug.println(deb);
-
+        debug.println(String((AY - DY)) + ' ' + String((SCY * ((AY > 0) ? 1 : -1))));
+        SCY = lim(SCY, STPLIM);
+        
         if (enabled and stpnum > 20) {
           if (AX < 0) PORTB |= (1 << MXDIR);
           else PORTB &= ~(1 << MXDIR);
@@ -132,9 +128,9 @@ void loop() {
 
           for (int stp = 0; stp < stpnum; stp++) {
             if (stp <= SCY) PORTB |= (1 << MYSTP);
-            delayMicroseconds(STPSPD);
+            _delay_us(STPSPD);
             PORTB &= ~(1 << MYSTP);
-            delayMicroseconds(STPSPD);
+            _delay_us(STPSPD);
           }
 
         }

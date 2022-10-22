@@ -40,6 +40,18 @@ Global az.u = 0
 Global Dim answer.a(20)
 
 
+Dim graph.f(700)
+Procedure draw(x.i)
+  While 1
+    StartDrawing(CanvasOutput(9))
+    Box(0,0, 670,180, RGB(10,50,10))
+    
+    
+    StopDrawing()
+  Wend  
+EndProcedure
+
+
 
 Procedure SerialConnect(x.i) ;procedure thread
   While 1
@@ -80,17 +92,20 @@ Procedure SerialConnect(x.i) ;procedure thread
 EndProcedure
 
 ;window init
-OpenWindow(0, 0, 0, 530, 180, "Control Panel", #PB_Window_ScreenCentered | #PB_Window_SystemMenu)
+OpenWindow(0, 0, 0, 800, 180, "Control Panel", #PB_Window_ScreenCentered | #PB_Window_SystemMenu)
+TextGadget(0,10,10, 100, 20, "Angle X", #PB_Text_Border)
+TextGadget(1,10,40, 100, 20, "Angle Y", #PB_Text_Border)
+TextGadget(2,10,70, 100, 20, "Angle Z (optional)", #PB_Text_Border)
+StringGadget(3,120,10, 100, 20, "0", #PB_String_Numeric)
+StringGadget(4,120,40, 100, 20, "0", #PB_String_Numeric)
+StringGadget(5,120,70, 100, 20, "0", #PB_String_Numeric)
+ButtonGadget(6,10,100,210,40,"Send Parameters")
+ButtonGadget(7,10,150,100,20,"Start")
+ButtonGadget(8,120,150,100,20,"Stop")
+CanvasGadget(9,230,0,670,180)
 SerialTH = CreateThread(@SerialConnect(),1) ; start thread Serial event parser
-TextGadget(0,10,10, 250, 20, "Angle X", #PB_Text_Border)
-TextGadget(1,10,40, 250, 20, "Angle Y", #PB_Text_Border)
-TextGadget(2,10,70, 250, 20, "Angle Z (optional)", #PB_Text_Border)
-StringGadget(3,270,10, 250, 20, "0", #PB_String_Numeric)
-StringGadget(4,270,40, 250, 20, "0", #PB_String_Numeric)
-StringGadget(5,270,70, 250, 20, "0", #PB_String_Numeric)
-ButtonGadget(6,10,100,510,40,"Send Parameters")
-ButtonGadget(7,10,150,250,20,"Start")
-ButtonGadget(8,270,150,250,20,"Stop")
+drawTH = CreateThread(@draw(),1) ; start thread Serial event parser
+
 
 Repeat 
   eve = WaitWindowEvent() ; wait window event optimizate
@@ -123,9 +138,10 @@ Until eve = #PB_Event_CloseWindow
 
 
 KillThread(SerialTH) ; kill Serial event thread
+KillThread(drawTH) ; kill Serial event thread
 
 ; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 58
-; FirstLine = 42
-; Folding = -
+; CursorPosition = 47
+; FirstLine = 35
+; Folding = 0
 ; EnableXP
