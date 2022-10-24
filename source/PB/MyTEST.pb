@@ -52,7 +52,7 @@ Procedure draw(x.i)
 EndProcedure
 
 OpenSerialPort(1, "COM19", 115200, #PB_SerialPort_NoParity, 8, 1, #PB_SerialPort_NoHandshake, 1024, 1024)
-WriteSerialPortString(1, "AX AY AZ"+Chr(10))
+WriteSerialPortString(1, "AY DIF"+Chr(10))
 
 Procedure SerialConnect(x.i) ;procedure thread
   While 1
@@ -80,11 +80,11 @@ Procedure SerialConnect(x.i) ;procedure thread
 ;       ans = ans + " 0x" + RSet(Hex(bite), 2, "0") ; console output bytes
     Next
     ans = ans + " => "  ;
-    
+    prevAy = ay;
     ax = ((answer(3) << 8) | answer(4)) ; parsing WT901 answer
     ay = ((answer(5) << 8) | answer(6))
     az = ((answer(7) << 8) | answer(8))
-    WriteSerialPortString(1, StrF(ay/182.0416,3)+Chr(10))
+    WriteSerialPortString(1, StrF(ay/182.0416,3) + " " + StrF((prevAy-ay)/182.0416,3) +Chr(10))
     ; add angle values in console output
 ;     ans = ans + RSet(StrF(ax / TODEG, 2), 6, "0") + " | " + RSet(StrF(ay  / TODEG , 1), 6, "0") + " | " + RSet(StrF(az  / TODEG, 2), 6, "0")
     ans = ans + RSet(StrF(ay  / TODEG , 1), 6, " ")
@@ -94,7 +94,7 @@ Procedure SerialConnect(x.i) ;procedure thread
 EndProcedure
 
 ;window init
-OpenWindow(0, 0, 0, 800, 180, "Control Panel", #PB_Window_ScreenCentered | #PB_Window_SystemMenu)
+OpenWindow(0, 0, 0, 230, 180, "Control Panel", #PB_Window_ScreenCentered | #PB_Window_SystemMenu)
 TextGadget(0,10,10, 100, 20, "Angle X", #PB_Text_Border)
 TextGadget(1,10,40, 100, 20, "Angle Y", #PB_Text_Border)
 TextGadget(2,10,70, 100, 20, "Angle Z (optional)", #PB_Text_Border)
@@ -104,9 +104,9 @@ StringGadget(5,120,70, 100, 20, "0", #PB_String_Numeric)
 ButtonGadget(6,10,100,210,40,"Send Parameters")
 ButtonGadget(7,10,150,100,20,"Start")
 ButtonGadget(8,120,150,100,20,"Stop")
-CanvasGadget(9,230,0,670,180)
+; CanvasGadget(9,230,0,670,180)
 SerialTH = CreateThread(@SerialConnect(),1) ; start thread Serial event parser
-drawTH = CreateThread(@draw(),1) ; start thread Serial event parser
+; drawTH = CreateThread(@draw(),1) ; start thread Serial event parser
 
 
 Repeat 
@@ -140,10 +140,11 @@ Until eve = #PB_Event_CloseWindow
 
 
 KillThread(SerialTH) ; kill Serial event thread
-KillThread(drawTH) ; kill Serial event thread
+; KillThread(drawTH) ; kill Serial event thread
+
 
 ; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 89
-; FirstLine = 80
+; CursorPosition = 86
+; FirstLine = 69
 ; Folding = -
 ; EnableXP

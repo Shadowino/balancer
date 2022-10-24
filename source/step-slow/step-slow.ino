@@ -72,7 +72,7 @@ void setup() {
 }
 
 int SPDcur = 35;
-#define SPDmax 50
+#define SPDmax 55
 #define SPDmin 30
 #define SPDacc 30
 #define SPDstr 40
