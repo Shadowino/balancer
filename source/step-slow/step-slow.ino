@@ -68,40 +68,79 @@ void setup() {
   PORTB &= ~(1 << MYENA);
   delayMicroseconds(50);
   //  debug.println("\tOK");
-  debug.println("AngleY ofssetY TOSTP numstpY directY ");
-  delay(1000);
+  delay(3000);
 }
 
 int SPDcur = 35;
 #define SPDmax 50
-#define SPDmin 25
+#define SPDmin 30
 #define SPDacc 30
-#define SPDstr 30
+#define SPDstr 40
 
-inline void stepn(int n_stp){
+inline void stepn(int n_stp) {
   SPDcur = SPDstr;
   for (int i = 0; i < n_stp; i++) {
-    PORTB &= ~(1 << MXSTP);
+    PORTB &= ~(1 << MYSTP);
     delayMicroseconds(SPDcur);
-    PORTB |= (1 << MXSTP);
-    delayMicroseconds(SPDcur-1);
+    PORTB |= (1 << MYSTP);
+    delayMicroseconds(SPDcur - 1);
     if ( i % SPDacc == 0) {
-      if (n_stp - i < (SPDmax-SPDmin)*SPDacc) {
-        SPDcur = (SPDcur+1 > SPDmax) ? SPDmax : SPDcur;
+      if (n_stp - i < (SPDmax - SPDmin)*SPDacc) {
+        SPDcur = (SPDcur + 1 > SPDmax) ? SPDmax : SPDcur;
       } else {
-        SPDcur = (SPDcur-1 < SPDmin) ? SPDmin : SPDcur;
+        SPDcur = (SPDcur - 1 < SPDmin) ? SPDmin : SPDcur;
       }
     }
   }
 }
 
 
+#define CNTS 2600   
+#define DELS 50   
+#define DELSS 10000   
 
 void loop() {
-  PORTB &= ~(1 << MXDIR);
-  stepn(3200);
-  delay(2000);
-  PORTB |= (1 << MXDIR);
-  stepn(3200);
-  delay(2000);
+  PORTB &= ~(1 << MYDIR);
+//  for (int stp = 0; stp < CNTS ; stp++) {
+//    PORTB |= (1 << MYSTP);
+//    delayMicroseconds(DELS);
+//    PORTB &= ~(1 << MYSTP);
+//    delayMicroseconds(DELS);
+//  }
+  stepn(CNTS);
+  delay(DELSS);
+  PORTB |= (1 << MYDIR);
+  stepn(CNTS);
+  delay(DELSS);
+  PORTB |= (1 << MYDIR);
+  stepn(CNTS);
+  delay(DELSS);
+  PORTB &= ~(1 << MYDIR);
+  stepn(CNTS);
+  delay(DELSS);
+//  while(1){}
+//  PORTB |= (1 << MYDIR);
+//  for (int stp = 0; stp < CNTS ; stp++) {
+//    PORTB |= (1 << MYSTP);
+//    delayMicroseconds(DELS);
+//    PORTB &= ~(1 << MYSTP);
+//    delayMicroseconds(DELS);
+//  }
+//  delay(3000);
+//  PORTB |= (1 << MYDIR);
+//  for (int stp = 0; stp < CNTS ; stp++) {
+//    PORTB |= (1 << MYSTP);
+//    delayMicroseconds(DELS);
+//    PORTB &= ~(1 << MYSTP);
+//    delayMicroseconds(DELS);
+//  }
+//  delay(3000);
+//  PORTB &= (1 << MYDIR);
+//  for (int stp = 0; stp < CNTS ; stp++) {
+//    PORTB |= (1 << MYSTP);
+//    delayMicroseconds(DELS);
+//    PORTB &= ~(1 << MYSTP);
+//    delayMicroseconds(DELS);
+//  }
+//  delay(3000);
 }

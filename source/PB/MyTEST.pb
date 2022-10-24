@@ -77,7 +77,7 @@ Procedure SerialConnect(x.i) ;procedure thread
     For i = 0 To cnt ; read available data and add this in console output
       ReadSerialPortData(0, @bite, 1)
       answer(i) = bite
-      ans = ans + " 0x" + RSet(Hex(bite), 2, "0") ; console output bytes
+;       ans = ans + " 0x" + RSet(Hex(bite), 2, "0") ; console output bytes
     Next
     ans = ans + " => "  ;
     
@@ -86,7 +86,8 @@ Procedure SerialConnect(x.i) ;procedure thread
     az = ((answer(7) << 8) | answer(8))
     WriteSerialPortString(1, StrF(ay/182.0416,3)+Chr(10))
     ; add angle values in console output
-    ans = ans + RSet(StrF(ax / TODEG, 2), 6, "0") + " | " + RSet(StrF(ay  / TODEG , 2), 6, "0") + " | " + RSet(StrF(az  / TODEG, 2), 6, "0")
+;     ans = ans + RSet(StrF(ax / TODEG, 2), 6, "0") + " | " + RSet(StrF(ay  / TODEG , 1), 6, "0") + " | " + RSet(StrF(az  / TODEG, 2), 6, "0")
+    ans = ans + RSet(StrF(ay  / TODEG , 1), 6, " ")
     PrintN(ans) ;output console
     
   Wend
@@ -142,7 +143,7 @@ KillThread(SerialTH) ; kill Serial event thread
 KillThread(drawTH) ; kill Serial event thread
 
 ; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 79
-; FirstLine = 76
+; CursorPosition = 89
+; FirstLine = 80
 ; Folding = -
 ; EnableXP
