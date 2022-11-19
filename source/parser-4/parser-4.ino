@@ -38,7 +38,7 @@
 #define AZINVERS true
 #define TOSTEPY (65536/STPCYCLEY)
 #define TOSTEPX (65536/STPCYCLEX)
-#define STPLIM 240
+#define STPLIM 290
 // pinout (use PD 0~7 and PB 8~13 like PD0~7 and PB0~5)
 // MX*** -> motorX controller
 // MY*** -> motorY controller
