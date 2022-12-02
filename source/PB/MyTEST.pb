@@ -141,8 +141,9 @@ Until eve = #PB_Event_CloseWindow
 KillThread(SerialTH) ; kill Serial event thread
 KillThread(drawTH) ; kill Serial event thread
 
-; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 79
-; FirstLine = 76
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 142
+; FirstLine = 109
 ; Folding = -
 ; EnableXP
+; Executable = C:\Users\Булочка\Desktop\qwer.exe
