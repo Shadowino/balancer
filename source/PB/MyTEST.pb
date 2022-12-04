@@ -1,4 +1,4 @@
-﻿COMPORT.s = "COM9"
+﻿COMPORT.s = "COM5"
 
 
 OpenConsole()
@@ -75,7 +75,7 @@ Procedure SerialConnect(x.i) ;procedure thread
       For i = 0 To cnt ; read available data and add this in console output
         ReadSerialPortData(0, @bite, 1)
         answer(i) = bite
-        ans = ans + " 0x" + RSet(Hex(bite), 2, "0") ; console output bytes
+          ans = ans + " 0x" + RSet(Hex(bite), 2, "0") ; console output bytes
       Next
 ;       Debug "recv"
       ans = ans + " => "  ;
@@ -86,7 +86,7 @@ Procedure SerialConnect(x.i) ;procedure thread
       ;     WriteSerialPortString(1, StrF(ay/182.0416,3) + " " + StrF((prevAy-ay)/182.0416,3) +Chr(10))
       ; add angle values in console output
       ;     ans = ans + RSet(StrF(ax / TODEG, 2), 6, "0") + " | " + RSet(StrF(ay  / TODEG , 1), 6, "0") + " | " + RSet(StrF(az  / TODEG, 2), 6, "0")
-      ans = ans + RSet(StrF(ax  / TODEG , 1), 6, " ")
+      ans = ans + RSet(StrF(ax  / TODEG , 1), 6, " ") + " " + RSet(StrF(ay  / TODEG , 1), 6, " ") + " " + RSet(StrF(az  / TODEG , 1), 6, " ")
       PrintN(ans) ;output console
     EndIf
     
@@ -146,7 +146,7 @@ KillThread(SerialTH) ; kill Serial event thread
 
 
 ; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 77
-; FirstLine = 79
+; CursorPosition = 91
+; FirstLine = 72
 ; Folding = -
 ; EnableXP
