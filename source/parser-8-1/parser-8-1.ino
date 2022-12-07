@@ -1,3 +1,6 @@
+//parser 8-1
+//изменено направление AX
+
 #include <SoftwareSerial.h>
 
 #define STPCYCLEY 8600
@@ -12,6 +15,7 @@ void setup() {
   debug.setTimeout(1);
   debug.println("\n115200");
   DDRD |= (1 << 4);
+  pinMode(5, INPUT_PULLUP);
   DDRD |= (1 << 7);
 
   DDRB |= (1 << 4);
@@ -35,6 +39,35 @@ void setup() {
   debug.print(((Serial) ? "true" : "false"));
   debug.print(" SS:");
   debug.println(((debug) ? "true" : "false"));
+  if (!digitalRead(5)) {
+    debug.println("INFO: Start selftest, check jumper and resetv arduino.");
+    while (1) {
+      PORTB &= ~(1 << 5); //13
+      PORTB &= ~(1 << 0); //8
+      for (int i = 0; i < 1500; i++) {
+        PORTB &= ~(1 << 4); //12
+        PORTB &= ~(1 << 1); //9
+        delay(1);
+        PORTB |= (1 << 4); //12
+        PORTB |= (1 << 1); //9
+        delay(1);
+      }
+      delay(500);
+      PORTB |= (1 << 5); //13
+      PORTB |= (1 << 0); //8
+      for (int i = 0; i < 1500; i++) {
+        PORTB &= ~(1 << 4); //12
+        PORTB &= ~(1 << 1); //9
+        delay(1);
+        PORTB |= (1 << 4); //12
+        PORTB |= (1 << 1); //9
+        delay(1);
+      }
+      delay(500);
+
+    }
+  }
+
 }
 
 class message {
@@ -117,32 +150,6 @@ void loop() {
     }
   }
 
-  while (0) {
-    PORTB &= ~(1 << 5); //13
-    PORTB &= ~(1 << 0); //8
-    for (int i = 0; i < 1500; i++) {
-      PORTB &= ~(1 << 4); //12
-      PORTB &= ~(1 << 1); //9
-      delay(1);
-      PORTB |= (1 << 4); //12
-      PORTB |= (1 << 1); //9
-      delay(1);
-    }
-    delay(500);
-    PORTB |= (1 << 5); //13
-    PORTB |= (1 << 0); //8
-    for (int i = 0; i < 1500; i++) {
-      PORTB &= ~(1 << 4); //12
-      PORTB &= ~(1 << 1); //9
-      delay(1);
-      PORTB |= (1 << 4); //12
-      PORTB |= (1 << 1); //9
-      delay(1);
-    }
-    delay(500);
-
-  }
-
 
 
   { // ================= RS485 protocol handler ===============
@@ -179,6 +186,7 @@ void loop() {
       else stpdel = 10000 / SCY;
 
       AX = pack.getX();
+      AX -= DX;
       SCX = abs(AX) / TOSTEPY;
 
       if (AY > 0) {
@@ -187,7 +195,7 @@ void loop() {
         PORTB &= ~(1 << 5);
       }
 
-      if (AX > 0) {
+      if (AX < 0) {
         PORTB |= (1 << 0); //dir
       } else {
         PORTB &= ~(1 << 0); //dir
@@ -196,7 +204,8 @@ void loop() {
 
     } else if (pack.mready and pack.type == 3) {
       if (pack.data[1] == 0x06) {
-        //        DY = pack.getY();
+        DY = pack.getY();
+        DX = pack.getX();
         //        DY = (DY > 8100) ? 8100 : ((DY < -8100) ? -8100 : DY);
       } else if (pack.data[1] == 0x01) {
         enabled = true;
