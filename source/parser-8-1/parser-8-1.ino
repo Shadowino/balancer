@@ -131,8 +131,8 @@ bool dp = false;
 
 int16_t AY, DY, AX, DX;
 long int SCY, SCX;
-long unsigned int stpdt, stpdtx;
-long unsigned int dt, dtx;
+long unsigned int stpdt, stpdtx, dtled;
+long unsigned int dt, dtx, dtl;
 unsigned int stpdel;
 bool enabled = true;
 
@@ -141,12 +141,14 @@ message nw;
 message pack;
 
 void loop() {
+
   while (0) {
+    dtl = millis();
     if (Serial.available()) {
       Serial.read();
-      PORTB |= (1 << 5); //13
+      PORTD |= (1 << 7); //13
     } else {
-      PORTB &= ~(1 << 5); //13
+      PORTD &= ~(1 << 7); //13
     }
   }
 
@@ -154,11 +156,12 @@ void loop() {
 
   { // ================= RS485 protocol handler ===============
     if (Serial.available() and !msgc) {
-      PORTD |= (1 << 7);
       //      debug.println(String(nw.len) + ":\t");
       recv = Serial.read();
-      if (recv == 0x50 or recv == 0x55) {
+      if ((recv == 0x50 or recv == 0x55)) {
+        //        if (nw.len > 3 and nw.len == ((nw.data[2] == 0) ? 8 : nw.data[2] + 5)) {
         nw.len = 0;
+        //        }
       }
       nw.add(recv);
       if ( nw.len > 3 and nw.len == ((nw.data[2] == 0) ? 8 : nw.data[2] + 5)) {
@@ -168,16 +171,19 @@ void loop() {
         pack.mready = true;
         pack.check();
         nw.len = 0;
+        //        if (pack.type = 1) {
+        PORTD |= (1 << 7);
+        delay(500);
+        PORTD &= ~(1 << 7);
+        //        }
         //        PORTD &= ~(1 << 7);
       }
     }
 
   }// =============== end of handler =============
-  PORTD &= ~(1 << 7);
 
   { // ================= PID controller ==============
     if (pack.mready and pack.type == 2) {
-      PORTD |= (1 << 7);
       AY = pack.getY();
       AY -= DY;
       SCY = abs(AY) / TOSTEPY;
@@ -215,12 +221,20 @@ void loop() {
     }
 
   }
-  PORTD &= ~(1 << 7);
 
   dt = micros();
   dtx = dt;
+  dtl = millis();
   { // ================== Step controller
-    PORTD |= (1 << 7);
+//    if (dtl - dtled > 500) {
+//      dtled = dtl;
+//      if (PINB & (1 << 7)) {
+//        PORTD &= ~(1 << 7);
+//      } else {
+//        PORTD |= (1 << 7);
+//      }
+//
+//    }
 
     //    if (!enabled and dt - stpdt > 100) {
     //      stpdt = dt;
@@ -256,7 +270,6 @@ void loop() {
 
 
   } // ================== asdcad ===============
-  PORTD &= ~(1 << 7);
 
   { // ================= SoftwareSerial debug ==============
     if (true and pack.mready) {
