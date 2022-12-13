@@ -1,4 +1,4 @@
-﻿COMPORT.s = "COM5"
+﻿COMPORT.s = "COM20"
 
 
 OpenConsole()
@@ -145,27 +145,7 @@ KillThread(SerialTH) ; kill Serial event thread
 ; KillThread(drawTH) ; kill Serial event thread
 
 
-<<<<<<< HEAD
+
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 142
-; FirstLine = 109
-||||||| 3d92543
-; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 79
-; FirstLine = 76
-=======
-; IDE Options = PureBasic 5.11 (Windows - x86)
-<<<<<<< HEAD
-; CursorPosition = 77
-; FirstLine = 79
->>>>>>> eaa59e702f5c21a35c014259da30ed8a1d24b446
-||||||| eaa59e7
-; CursorPosition = 77
-; FirstLine = 79
-=======
-; CursorPosition = 91
-; FirstLine = 72
->>>>>>> b6a0edddb0d7688f2fc9c1e5a57b26013f7e9272
 ; Folding = -
 ; EnableXP
-; Executable = C:\Users\Булочка\Desktop\qwer.exe
