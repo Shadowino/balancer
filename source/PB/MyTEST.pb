@@ -6,7 +6,7 @@ PrintN("Programm Started")
 
 If OpenSerialPort(0, COMPORT, 115200, #PB_SerialPort_NoParity, 8, 1, #PB_SerialPort_NoHandshake, 1024, 1024)
 Else
-  MessageRequester("Err", "Serial port " + COMPORT + " not open!")  
+  MessageRequester("Err", "Serial port " + COMPORT + " not open!")
   End
 EndIf
 
@@ -60,17 +60,17 @@ Procedure SerialConnect(x.i) ;procedure thread
       PrintN("\tOK")
       ConsoleColor(7,0)
       SendArd = 0
-      Delay(100)  
+      Delay(100)
     Else
-      
-      
+
+
       While AvailableSerialPortInput(0) = 0 ; send qwestion for WT901
         WriteSerialPortData(0, @WTqwst(), 8)
 ;         Print("send:  ") ;output console
 ;         Debug "send"
         Delay(100)
       Wend
-      
+
       ans.s = "" ;answer output console
       cnt = AvailableSerialPortInput(0) - 1 ; count available bytes
 ;       Debug cnt
@@ -92,7 +92,7 @@ Procedure SerialConnect(x.i) ;procedure thread
       ans = ans + RSet(StrF(ax  / TODEG , 1), 6, " ") + " " + RSet(StrF(ay  / TODEG , 1), 6, " ") + " " + RSet(StrF(az  / TODEG , 1), 6, " ")
       PrintN(ans) ;output console
     EndIf
-    
+
   Wend
 EndProcedure
 
@@ -112,7 +112,7 @@ SerialTH = CreateThread(@SerialConnect(),1) ; start thread Serial event parser
 ; drawTH = CreateThread(@draw(),1) ; start thread Serial event parser
 
 
-Repeat 
+Repeat
   eve = WaitWindowEvent() ; wait window event optimizate
   If eve = #PB_Event_Gadget
     Select EventGadget()
@@ -127,7 +127,7 @@ Repeat
         ARmsg(7) = $00FF & (Val(GetGadgetText(5)) * 182)
         ARmsg(8) = ($FF00 & (Val(GetGadgetText(5)) * 182)) >> 8
         SendArd = 1 ; flag available message
-        ConsoleColor(10, 0) 
+        ConsoleColor(10, 0)
         Debug ARmsg(3)
         Debug ARmsg(4)
         Debug ARmsg(5)
@@ -142,46 +142,12 @@ Repeat
         SendArd = 1
     EndSelect
   EndIf
-  
-  
-  
+
+
+
 Until eve = #PB_Event_CloseWindow
 
-
-KillThread(SerialTH) ; kill Serial event thread
-; KillThread(drawTH) ; kill Serial event thread
-
-
-<<<<<<< HEAD
-
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-||||||| d29c8cc
-<<<<<<< HEAD
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 142
-; FirstLine = 109
-||||||| 3d92543
-; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 79
-; FirstLine = 76
-=======
-; IDE Options = PureBasic 5.11 (Windows - x86)
-<<<<<<< HEAD
-; CursorPosition = 77
-; FirstLine = 79
->>>>>>> eaa59e702f5c21a35c014259da30ed8a1d24b446
-||||||| eaa59e7
-; CursorPosition = 77
-; FirstLine = 79
-=======
-; CursorPosition = 91
-; FirstLine = 72
->>>>>>> b6a0edddb0d7688f2fc9c1e5a57b26013f7e9272
-=======
 
 ; IDE Options = PureBasic 5.11 (Windows - x86)
 ; CursorPosition = 82
 ; FirstLine = 58
->>>>>>> 7955a0dc359bb158ead292050611b47767582f04
-; Folding = -
-; EnableXP
