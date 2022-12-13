@@ -17,11 +17,16 @@
 #define MYSTP 4 //12
 #define MYDIR 5 //13
 
+// PORTD
+#define SSTX 2 //2
+#define SSRX 3 //3
+#define SSEN 4 //2
+
 
 #define STPCYCLEY 8600
 #define TOSTEPY (65536/STPCYCLEY)
 
-#define SSENA true
+#define SSDEBUG true
 
 SoftwareSerial debug(2, 3);
 
@@ -39,12 +44,12 @@ void setup() {
   DDRD |= (1 << 6);
   DDRD |= (1 << 7);
 
-  DDRB |= (1 << 0);
-  DDRB |= (1 << 1);
-  DDRB |= (1 << 2);
-  DDRB |= (1 << 3);
-  DDRB |= (1 << 4);
-  DDRB |= (1 << 5);
+  DDRB |= (1 << MXENA);
+  DDRB |= (1 << MXDIR);
+  DDRB |= (1 << MXSTP);
+  DDRB |= (1 << MYSTP);
+  DDRB |= (1 << MYDIR);
+  DDRB |= (1 << MYENA);
   PDoff(4)
   PDoff(5)
   PDoff(6)
@@ -55,10 +60,10 @@ void setup() {
   PBoff(MYENA);
   PBoff(MYSTP);
   PBoff(MYDIR);
-  if (SSENA) {
+  #if SSDEBUG
     debug.print("HS:");
     debug.print(((Serial) ? "true" : "false"));
     debug.print(" SS:");
     debug.println(((debug) ? "true" : "false"));
-  }
+  #endif
 }

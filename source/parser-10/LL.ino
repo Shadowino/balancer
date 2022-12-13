@@ -44,14 +44,19 @@ class motion {
     uint8_t STP;
     uint8_t DIR;
     uint8_t ENA;
-    uint32_t dt;
+    // uint32_t dt;
     uint32_t stpdt;
     uint32_t stpdel;
-    void ini(){
-      
+    motion(uint8_t _STP,uint8_t _DIR, uint8_t _ENA){
+      STP = _STP; DIR = _DIR; ENA = _ENA;
     }
-    void check(){
-      dt = micros();
+    void ini(){
+      PORTD |= (1 << STP);
+      PORTD |= (1 << DIR);
+      PORTD |= (1 << ENA);
+    }
+    void check(uint32_t dt){
+      // dt = micros();
       if (dt - stpdt > stpdel){
         stpdt = dt;
         if(PINB & (1<<STP)){

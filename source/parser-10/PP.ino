@@ -2,8 +2,13 @@
 int16_t AY, DY, AX, DX;
 long int SCY, SCX;
 uint32_t stpdtx, stpdty, dtx, dty;
-uint16_t stpdelx, stpdely;
+uint16_t stpdelx, stpdelx;
 bool enabled = true; 
+uint8_t recv;
+message nw, pack;
+motion mX(MXSTP, MXDIR, MXENA);
+motion mY(MYSTP, MYDIR, MYENA);
+
 
 void loop() {
   // =============RS485============
@@ -37,6 +42,8 @@ void loop() {
     else if (SCY <= 10) stpdely = 1000;
     else stpdely = 10000 / SCY;
   }
+
+  // ============ step ============
 
 
 
