@@ -1,4 +1,4 @@
-﻿COMPORT.s = "COM20"
+﻿COMPORT.s = "COM5"
 
 
 OpenConsole()
@@ -25,7 +25,7 @@ WTqwst(7) = $86 ;CRC code low
 Global Dim ARmsg.a(10)
 ARmsg(0) = $55 ;Arduino ID
 ARmsg(1) = $06 ;Arduino command
-ARmsg(2) = $04 ;Lenght message
+ARmsg(2) = $03 ;Lenght message
 ARmsg(3) = $00 ;High Arduino angle X
 ARmsg(4) = $00 ;Low Arduino angle x
 ARmsg(5) = $00 ;High Arduino angle y
@@ -60,7 +60,7 @@ Procedure SerialConnect(x.i) ;procedure thread
       PrintN("\tOK")
       ConsoleColor(7,0)
       SendArd = 0
-      Delay(100)
+      Delay(10)
     Else
 
 
@@ -68,7 +68,7 @@ Procedure SerialConnect(x.i) ;procedure thread
         WriteSerialPortData(0, @WTqwst(), 8)
 ;         Print("send:  ") ;output console
 ;         Debug "send"
-        Delay(100)
+        Delay(10)
       Wend
 
       ans.s = "" ;answer output console
@@ -78,9 +78,9 @@ Procedure SerialConnect(x.i) ;procedure thread
       For i = 0 To cnt ; read available data and add this in console output
         ReadSerialPortData(0, @bite, 1)
         answer(i) = bite
-          ans = ans + " 0x" + RSet(Hex(bite), 2, "0") ; console output bytes
+        ans = ans + " 0x" + RSet(Hex(bite), 2, "0") ; console output bytes
       Next
-;       Debug "recv"4
+      ;       Debug "recv"4
       ans = ans + " => "  ;
       prevAy = ay;
       ax = ((answer(3) << 8) | answer(4)) ; parsing WT901 answer
@@ -128,10 +128,10 @@ Repeat
         ARmsg(8) = ($FF00 & (Val(GetGadgetText(5)) * 182)) >> 8
         SendArd = 1 ; flag available message
         ConsoleColor(10, 0)
-        Debug ARmsg(3)
-        Debug ARmsg(4)
-        Debug ARmsg(5)
-        Debug ARmsg(6)
+;         Debug ARmsg(3)
+;         Debug ARmsg(4)
+;         Debug ARmsg(5)
+;         Debug ARmsg(6)
         PrintN("Arduino MSG Ready") ; console Output debug
         ConsoleColor(7,0)
       Case 7 ; startmessage
@@ -149,5 +149,6 @@ Until eve = #PB_Event_CloseWindow
 
 
 ; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 82
-; FirstLine = 58
+; CursorPosition = 80
+; FirstLine = 56
+; Folding = -

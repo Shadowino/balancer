@@ -135,7 +135,8 @@ long unsigned int stpdt, stpdtx, dtled;
 long unsigned int dt, dtx, dtl;
 unsigned int stpdel;
 bool enabled = true;
-
+uint32_t dtbyte;
+uint32_t DTMILLIS;
 
 message nw;
 message pack;
@@ -144,6 +145,10 @@ void loop() {
 
   while (0) {
     dtl = millis();
+    PORTD |= (1 << 7);
+    delay(250);
+    PORTD &= ~(1 << 7);
+    delay(250);
     if (Serial.available()) {
       Serial.read();
       PORTD |= (1 << 7); //13
@@ -153,30 +158,40 @@ void loop() {
   }
 
 
+  DTMILLIS = millis();
+  { // ================= LED INDICATOR =====
+//    if (DTMILLIS - dtled > 500) {
+//      dtled = DTMILLIS;
+//      if (PIND & (1 << 7)) {
+//        PORTD &= ~(1 << 7);
+//      } else {
+//        PORTD |= (1 << 7);
+//      }
+//    }
+  }
+
 
   { // ================= RS485 protocol handler ===============
+    if (DTMILLIS - dtbyte > 5) nw.len = 0;
     if (Serial.available() and !msgc) {
-      //      debug.println(String(nw.len) + ":\t");
-      recv = Serial.read();
-      if ((recv == 0x50 or recv == 0x55)) {
-        //        if (nw.len > 3 and nw.len == ((nw.data[2] == 0) ? 8 : nw.data[2] + 5)) {
-        nw.len = 0;
-        //        }
+      if (PIND & (1 << 7)) {
+        PORTD &= ~(1 << 7);
+      } else {
+        PORTD |= (1 << 7);
       }
+      dtbyte = DTMILLIS;
+      recv = Serial.read();
+      //      if (recv == 0x50 or recv == 0x55) {
+      //        nw.len = 0;
+      //      }
       nw.add(recv);
-      if ( nw.len > 3 and nw.len == ((nw.data[2] == 0) ? 8 : nw.data[2] + 5)) {
+      if (nw.len > 3 and nw.len == ((nw.data[2] == 0) ? 8 : nw.data[2] + 5)) {
         for (int i = 0; i < nw.len; i++) {
           pack = nw;
         }
         pack.mready = true;
         pack.check();
         nw.len = 0;
-        //        if (pack.type = 1) {
-        PORTD |= (1 << 7);
-        delay(500);
-        PORTD &= ~(1 << 7);
-        //        }
-        //        PORTD &= ~(1 << 7);
       }
     }
 
@@ -224,17 +239,17 @@ void loop() {
 
   dt = micros();
   dtx = dt;
-  dtl = millis();
+  //  dtl = millis();
   { // ================== Step controller
-//    if (dtl - dtled > 500) {
-//      dtled = dtl;
-//      if (PINB & (1 << 7)) {
-//        PORTD &= ~(1 << 7);
-//      } else {
-//        PORTD |= (1 << 7);
-//      }
-//
-//    }
+    //    if (dtl - dtled > 500) {
+    //      dtled = dtl;
+    //      if (PINB & (1 << 7)) {
+    //        PORTD &= ~(1 << 7);
+    //      } else {
+    //        PORTD |= (1 << 7);
+    //      }
+    //
+    //    }
 
     //    if (!enabled and dt - stpdt > 100) {
     //      stpdt = dt;
