@@ -1,5 +1,17 @@
-//parser 8-1
+//parser 8-2
+//PID регулятор
 //изменено направление AX
+
+// PID struct
+// тут все коэфиценты
+float PIDKP = 0.1297;
+float PIDKI = 0;
+float PIDKD = 0;
+float PIDI;
+float PIDD;
+uint32_t PIDdt;
+uint16_t PIDerr;
+
 
 #include <SoftwareSerial.h>
 
@@ -7,6 +19,7 @@
 #define TOSTEPY (65536/STPCYCLEY)
 
 SoftwareSerial debug(2, 3);
+
 
 void setup() {
   Serial.begin(115200);
@@ -106,14 +119,6 @@ class message {
 
     }
 
-    int16_t getY_old() {
-      if (type == 2) {
-        return (data[6] | (data[5] << 8));
-      } else {
-        return (data[5] | (data[6] << 8));
-      }
-
-    }
 };
 
 uint8_t recv;
@@ -160,14 +165,14 @@ void loop() {
 
   DTMILLIS = millis();
   { // ================= LED INDICATOR =====
-//    if (DTMILLIS - dtled > 500) {
-//      dtled = DTMILLIS;
-//      if (PIND & (1 << 7)) {
-//        PORTD &= ~(1 << 7);
-//      } else {
-//        PORTD |= (1 << 7);
-//      }
-//    }
+    //    if (DTMILLIS - dtled > 500) {
+    //      dtled = DTMILLIS;
+    //      if (PIND & (1 << 7)) {
+    //        PORTD &= ~(1 << 7);
+    //      } else {
+    //        PORTD |= (1 << 7);
+    //      }
+    //    }
   }
 
 
@@ -200,11 +205,25 @@ void loop() {
   { // ================= PID controller ==============
     if (pack.mready and pack.type == 2) {
       AY = pack.getY();
-      AY -= DY;
-      SCY = abs(AY) / TOSTEPY;
+      AY -= DY; // Применить поправку угла
+      // AY -> Ошибка регулирования
+      SCY = 0; // Колво шагов
+      // PID Регулятор
+      // SCY = AY*PIDKP + PIDI*PIDKI + PIDD*PIDKD // управляющий сигнал
+      // PIDI = PIDI + AY*(DTMILLIS - PIDdt) // I состовляющая
+      // PIDdt = DTMILLIS  | (time) // прошлое время измерения
+      // PIDD = (AY - PIDerr)/(DTMILLIS - PIDdt) // D Состовляющая
+      // время везде измеряеться в миллисикундах, коэфициенты задаются в начале коде при компиляции
+      PIDI = PIDI + AY * (DTMILLIS - PIDdt);
+      PIDD = (AY - PIDerr) * (DTMILLIS - PIDdt);
+      SCY = (uint32_t)(AY * PIDKP + PIDI * PIDKI + PIDD * PIDKD);
+      PIDerr = AY;
+      PIDdt = DTMILLIS;
+
       if (SCY >= 200) stpdel = 40;
       else if (SCY <= 10) stpdel = 1000;
       else stpdel = 10000 / SCY;
+
 
       AX = pack.getX();
       AX -= DX;
