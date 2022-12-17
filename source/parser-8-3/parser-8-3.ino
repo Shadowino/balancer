@@ -1,6 +1,6 @@
 //parser 8-1
 //изменено направление AX
-
+//
 #include <SoftwareSerial.h>
 
 #define STPCYCLEY 8600
