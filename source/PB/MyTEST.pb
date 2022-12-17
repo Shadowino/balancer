@@ -149,6 +149,6 @@ Until eve = #PB_Event_CloseWindow
 
 
 ; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 80
+; CursorPosition = 64
 ; FirstLine = 56
 ; Folding = -
