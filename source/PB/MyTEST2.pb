@@ -148,7 +148,7 @@ Repeat
 Until eve = #PB_Event_CloseWindow
 
 
-; IDE Options = PureBasic 6.00 LTS (Windows - x86)
+; IDE Options = PureBasic 5.11 (Windows - x64)
 ; CursorPosition = 99
 ; FirstLine = 70
 ; Folding = -
