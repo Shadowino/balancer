@@ -1,0 +1,65 @@
+; Form Designer for Purebasic - 5.11
+; Warning: this file uses a strict syntax, if you edit it, make sure to respect the Form Designer limitation or it won't be opened again.
+
+Enumeration #PB_Compiler_EnumerationValue
+  #Window_1
+EndEnumeration
+
+Enumeration #PB_Compiler_EnumerationValue
+  #LOAD
+  #TEXT1
+  #SPORT
+  #TEXT2
+  #SDEVICE
+  #TEXT3
+  #SFILEREQ
+  #SFILE
+  #Text_0
+  #SFILEREQ_Copy1
+EndEnumeration
+
+Enumeration #PB_Compiler_EnumerationValue
+  #Font_0
+  #Font_1
+EndEnumeration
+
+LoadFont(#Font_0,"Consolas", 12)
+LoadFont(#Font_1,"Consolas", 18)
+
+
+Procedure OpenWindow_1()
+  OpenWindow(#Window_1, 0, 0, 440, 184, "Загрузчик программ © SelSoft 2022", #PB_Window_SystemMenu | #PB_Window_MinimizeGadget | #PB_Window_ScreenCentered)
+  ButtonGadget(#LOAD, 8, 144, 192, 32, "Загрузить программу")
+  TextGadget(#TEXT1, 8, 48, 80, 24, "Порт")
+  SetGadgetFont(#TEXT1, FontID(#Font_0))
+  ComboBoxGadget(#SPORT, 96, 48, 200, 24)
+  GadgetToolTip(#SPORT, "выберите COM")
+  TextGadget(#TEXT2, 8, 80, 80, 24, "Модель")
+  SetGadgetFont(#TEXT2, FontID(#Font_0))
+  ComboBoxGadget(#SDEVICE, 96, 80, 200, 24)
+  TextGadget(#TEXT3, 8, 112, 80, 24, "HEX фаил")
+  SetGadgetFont(#TEXT3, FontID(#Font_0))
+  ButtonGadget(#SFILEREQ, 304, 112, 64, 24, "Выбрать")
+  StringGadget(#SFILE, 96, 112, 200, 24, "firmware/example.hex")
+  DisableGadget(#SFILE, 1)
+  TextGadget(#Text_0, 8, 8, 424, 32, "Подключите Arduino к Компютеру", #PB_Text_Border)
+  SetGadgetFont(#Text_0, FontID(#Font_1))
+  ButtonGadget(#SFILEREQ_Copy1, 304, 48, 64, 24, "Поиск")
+EndProcedure
+
+Procedure Window_1_Events(event)
+  Select event
+    Case #PB_Event_CloseWindow
+      ProcedureReturn #False
+
+    Case #PB_Event_Menu
+      Select EventMenu()
+      EndSelect
+
+    Case #PB_Event_Gadget
+      Select EventGadget()
+      EndSelect
+  EndSelect
+  ProcedureReturn #True
+EndProcedure
+
