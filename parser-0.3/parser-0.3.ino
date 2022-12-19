@@ -77,7 +77,7 @@ int SCX;
 int SCY;
 int stpnum;
 String deb;
-
+int enabled = true;
 
 void loop() {
   while (0) {
@@ -107,30 +107,44 @@ void loop() {
         deb += " | " + String(AY / TODEG);
         deb += " | " + String(AZ / TODEG);
         PORTD |= 1 << DBB;
-        debug.println(deb);
+        debug.println(deb + "\tDXYZ\t" + String(DX / TODEG) + "\t" + String(DY / TODEG) + "\t" + String(DZ / TODEG));
         PORTD &= ~(1 << DBB);
 
-        SCX = abs((AX - PX)) / TOSTEPX; //
-        SCY = abs((AY - PY)) / TOSTEPY; //
+        SCX = abs(((AX + DX) - PX)) / TOSTEPX; //
+        SCY = abs(((AY + DY) - PY)) / TOSTEPY; //
         stpnum = (SCX > SCY) ? SCX : SCY;
-        if ((AX - PX) > 0 xor AXINVERS) PORTB |= (1 << MXDIR);
-        else PORTB &= ~(1 << MXDIR);
-        if ((AY - PY) > 0 xor AYINVERS) PORTB |= (1 << MYDIR);
-        else PORTB &= ~(1 << MYDIR);
 
-        for (int stp = 0; stp < stpnum; stp++) {
-          if (stp <= SCX) PORTB |= (1 << MXSTP);
-          if (stp <= SCY) PORTB |= (1 << MYSTP);
-          delayMicroseconds(STPSPD);
-          PORTB &= ~(1 << MXSTP);
-          PORTB &= ~(1 << MYSTP);
-          delayMicroseconds(STPSPD);
+        if (enabled) {
+          if (((AX + DX) - PX) > 0 xor AXINVERS) PORTB |= (1 << MXDIR);
+          else PORTB &= ~(1 << MXDIR);
+          if (((AY + DY) - PY) > 0 xor AYINVERS) PORTB |= (1 << MYDIR);
+          else PORTB &= ~(1 << MYDIR);
+
+          for (int stp = 0; stp < stpnum; stp++) {
+            if (stp <= SCX) PORTB |= (1 << MXSTP);
+            if (stp <= SCY) PORTB |= (1 << MYSTP);
+            delayMicroseconds(STPSPD);
+            PORTB &= ~(1 << MXSTP);
+            PORTB &= ~(1 << MYSTP);
+            delayMicroseconds(STPSPD);
+          }
+
+          PX = AX + DX;
+          PY = AY + DY;
         }
-        PX = AX;
-        PY = AY;
       } else {
         Serial.readBytes(qwery, 5);
       }
+    } else if (recv == 0x55) {
+      int msgln = Serial.readBytes(qwery, 6);
+      if (qwery[0] == 0x01) enabled = true;
+      if (qwery[0] == 0x02) enabled = false;
+      if (qwery[0] == 0x06) {
+        DX = qwery[1] | (qwery[2] << 8);
+        DY = qwery[3] | (qwery[4] << 8);
+        DZ = qwery[5] | (qwery[6] << 8);
+      }
+      //      debug.println("CMND:"+String(qwery[0])+"\tDXYZ\t"+String(DX)+"\t"+String(DY)+"\t"+String(DZ));
     }
     Lrecv = recv;
     PORTD &= ~(1 << DBA);
