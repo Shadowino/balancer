@@ -1,6 +1,9 @@
 ﻿; исходный код для загрузчика прошивок
 #disableDef = #False
 
+; для purebasic 5.11!!!!!
+#PB_MessageRequester_Error = #PB_MessageRequester_Ok
+
 LoadFont(0,"Consolas", 14)
 LoadFont(1,"Consolas", 18)
 
@@ -150,9 +153,11 @@ Repeat
 Until eve = #PB_Event_CloseWindow
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; IDE Options = PureBasic 5.11 (Windows - x86)
+; CursorPosition = 92
+; FirstLine = 71
 ; Folding = -
+; EnableUnicode
 ; EnableXP
 ; UseIcon = icon-nobackground.ico
 ; Executable = loader.exe
-; EnableUnicode
