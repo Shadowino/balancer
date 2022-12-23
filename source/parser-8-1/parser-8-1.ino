@@ -260,14 +260,14 @@ void loop() {
     //      }
     //    }
 
-    if (dt - stpdt > stpdel and SCY > 1 and enabled) {
+    if (dt - stpdt > 40 and SCY > 1 and enabled) {
       stpdt = dt;
       if (PINB & (1 << 4)) {
         PORTB &= ~(1 << 4);
         SCY--;
-        if (SCY >= 125) stpdel = 40;
-        else if (SCY <= 10) stpdel = 1000;
-        else stpdel = 10000 / SCY;
+//        if (SCY >= 125) stpdel = 40;
+//        else if (SCY <= 10) stpdel = 1000;
+//        else stpdel = 10000 / SCY;
       } else {
         PORTB |= (1 << 4);
       }
