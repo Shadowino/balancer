@@ -28,8 +28,8 @@ Procedure.s cr(angle)
   ProcedureReturn RSet(StrF(angle / TODEG , 1), 6, " ")  
 EndProcedure
 
-Pattern$ = "Text (*.txt)|*.txt;|All files (*.*)|*.*"
-wrlog.s = SaveFileRequester("genm", "csv.txt",Pattern$,2)
+Pattern$ = "Text (*.txt)|*.txt;|All files (*.*)|*.*|CSV|*.csv"
+wrlog.s = SaveFileRequester("genm", "csv" + FormatDate("%ss-%ii-%hh", Date()) + ".txt",Pattern$,2)
 
 OpenConsole()
 PrintN("Start")
@@ -117,7 +117,7 @@ CloseConsole()
 End
 
 ; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 65
-; FirstLine = 58
+; CursorPosition = 78
+; FirstLine = 64
 ; Folding = -
 ; EnableXP
