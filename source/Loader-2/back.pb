@@ -12,87 +12,116 @@ Global Img_WIN0_0
 
 UseJPEGImageDecoder()
 
-Img_WIN0_0 = LoadImage(#PB_Any,"C:\git\balancer\source\Loader-2\logo.jpg")
-ResizeImage(Img_WIN0_0, 480,100)
+Img_WIN0_0 = LoadImage(#PB_Any,"logo.jpg")
+ResizeImage(Img_WIN0_0, 580,100)
 
-Enumeration FormFont
-  #Font_WIN0_0
-  #Font_WIN0_1
-  #Font_WIN0_2
-EndEnumeration
+#Font_WIN0_0 = 1
+#Font_WIN0_1 = 2
+#Font_WIN0_2 = 3
 
-LoadFont(#Font_WIN0_0,"Consolas", 20)
-LoadFont(#Font_WIN0_1,"Consolas", 18)
-LoadFont(#Font_WIN0_2,"Consolas", 16)
-Global colWin1 = RGB(128,128,255)
-Global colWin2 = RGB(64,64,255)
+LoadFont(#Font_WIN0_0,"Arial", 20)
+LoadFont(#Font_WIN0_1,"Arial", 20)
+LoadFont(#Font_WIN0_2,"Arial", 12)
+Global colWin1 = RGB(135,195,193)
+Global colWin2 = RGB(62,192,190)
 Declare ResizeGadgetsWIN0()
 
 ; Declare CheckEve(Event, Window)
 
-Procedure OpenWIN0(x = 0, y = 0, width = 480, height = 390)
-  WIN0 = OpenWindow(#PB_Any, x, y, width, height, "Загрузчик программ © SelSoft 2022", #PB_Window_SystemMenu)
-  Text_0 = TextGadget(#PB_Any, 0, 100, 480, 40, "Загрузчик программ для ДОН-12")
-  SetGadgetFont(Text_0, FontID(#Font_WIN0_0))
-  Image_1 = ImageGadget(#PB_Any, 0, 0, 480, 100, ImageID(Img_WIN0_0))
+Procedure OpenWIN0(x = 0, y = 0, width = 620, height = 460)
+  WIN0 = OpenWindow(#PB_Any, x, y, width, height, "Загрузчик программ © SelSoft 2022", #PB_Window_SystemMenu | #PB_Window_ScreenCentered)
+  SetWindowColor(WIN0, RGB(214,214,214)) 
+  ImageGadget(1, 20, 10, 580, 100, ImageID(Img_WIN0_0))
+  TextGadget(2, 20, 110, 580, 40, "ЗАГРУЗЧИК ПРОГРАММ ДЛЯ ДОН-12", #PB_Text_Center)
+  SetGadgetFont(2, FontID(#Font_WIN0_0))
+  SetGadgetColor(2, #PB_Gadget_BackColor, RGB(214,214,214))
   
-  ContainerGadget(10, 0, 140, 480, 50)
-  TextGadget(11, 0, 8, 64, 32, "ШАГ1")
-  TextGadget(12, 72, 8, 232, 32, "Подключите кабель")
-  SetGadgetColor(10, #PB_Gadget_BackColor,RGB(128,128,255))
-  SetGadgetColor(11, #PB_Gadget_BackColor,RGB(128,128,255))
-  SetGadgetColor(12, #PB_Gadget_BackColor,RGB(128,128,255))
-  SetGadgetFont(12, FontID(#Font_WIN0_2))
-  SetGadgetFont(11, FontID(#Font_WIN0_1))
+  ContainerGadget(10, 20, 150, 580, 50)
+  TextGadget(10+1, 5, 8, 86, 32, "ШАГ 1")
+  TextGadget(10+2, 91, 8, 384, 32, "Подключите кабель к усройству USB")
+;   TextGadget(10+3, 325, 8, 150, 32, "@", #PB_Text_Right)
+  SetGadgetColor(10, #PB_Gadget_BackColor,colWin1)
+  SetGadgetColor(10+1, #PB_Gadget_BackColor,colWin1)
+  SetGadgetColor(10+2, #PB_Gadget_BackColor,colWin1)
+  SetGadgetColor(10+1, #PB_Gadget_FrontColor, RGB(255,255,255))
+;   SetGadgetColor(10+3, #PB_Gadget_BackColor,colWin1)
+  SetGadgetFont(10+2, FontID(#Font_WIN0_2))
+  SetGadgetFont(10+1, FontID(#Font_WIN0_1))
   CloseGadgetList()
   
-  ContainerGadget(20, 0, 190, 480, 50)
-  TextGadget(21, 0, 8, 64, 32, "ШАГ2")
-  TextGadget(22, 72, 8, 232, 32, "выберите порт")
+    ContainerGadget(20, 20, 200, 580, 50)
+  TextGadget(20+1, 5, 8, 85, 32, "ШАГ 2")
+  TextGadget(20+2, 90, 8, 250, 32, "Выполните Поиск")
+  ButtonGadget(20+3, 340, 8, 230, 32, "ПОИСК")
   SetGadgetColor(20, #PB_Gadget_BackColor,colWin2)
-  SetGadgetColor(21, #PB_Gadget_BackColor,colWin2)
-  SetGadgetColor(22, #PB_Gadget_BackColor,colWin2)
-  SetGadgetFont(22, FontID(#Font_WIN0_2))
-  SetGadgetFont(21, FontID(#Font_WIN0_1))
+  SetGadgetColor(20+1, #PB_Gadget_BackColor,colWin2)
+  SetGadgetColor(20+2, #PB_Gadget_BackColor,colWin2)
+  SetGadgetColor(20+1, #PB_Gadget_FrontColor, RGB(255,255,255))
+;   SetGadgetColor(20+3, #PB_Gadget_BackColor,colWin1)
+  SetGadgetFont(20+2, FontID(#Font_WIN0_2))
+  SetGadgetFont(20+1, FontID(#Font_WIN0_1))
   CloseGadgetList()
   
-  ContainerGadget(30, 0, 240, 480, 50)
-  TextGadget(30+1, 0, 8, 64, 32, "ШАГ3")
-  TextGadget(30+2, 72, 8, 232, 32, "выберите HEX")
+  ContainerGadget(30, 20, 250, 580, 50)
+  TextGadget(30+1, 5, 8, 86, 32, "ШАГ 3")
+;   TextGadget(20+2, 90, 8, 250, 32, "Выполните Поиск")
+  TextGadget(30+2, 91, 8, 250, 32, "Выберите модель устройства")
+  ;   TextGadget(30+3, 325, 8, 150, 32, "@", #PB_Text_Right)
   SetGadgetColor(30, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(30+1, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(30+2, #PB_Gadget_BackColor,colWin1)
+  SetGadgetColor(30+1, #PB_Gadget_FrontColor, RGB(255,255,255))
+  ;   SetGadgetColor(30+3, #PB_Gadget_BackColor,colWin1)
   SetGadgetFont(30+2, FontID(#Font_WIN0_2))
   SetGadgetFont(30+1, FontID(#Font_WIN0_1))
   CloseGadgetList()
   
-    ContainerGadget(40, 0, 290, 480, 50)
-  TextGadget(40+1, 0, 8, 64, 32, "ШАГ4")
-  TextGadget(40+2, 72, 8, 232, 32, "выберите HEX")
+  ContainerGadget(40, 20, 300, 580, 50)
+  TextGadget(40+1, 5, 8, 86, 32, "ШАГ 4")
+  TextGadget(40+2, 91, 8, 234, 32, "Выберите порт устройства")
+  ;   TextGadget(40+3, 325, 8, 150, 32, "@", #PB_Text_Right)
   SetGadgetColor(40, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(40+1, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(40+2, #PB_Gadget_BackColor,colWin2)
+  SetGadgetColor(40+1, #PB_Gadget_FrontColor, RGB(255,255,255))
+  ;   SetGadgetColor(40+3, #PB_Gadget_BackColor,colWin1)
   SetGadgetFont(40+2, FontID(#Font_WIN0_2))
   SetGadgetFont(40+1, FontID(#Font_WIN0_1))
   CloseGadgetList()
   
-  ContainerGadget(50, 0, 340, 480, 50)
-  TextGadget(50+1, 0, 8, 64, 32, "ШАГ5")
-  TextGadget(50+2, 72, 8, 232, 32, "выберите HEX")
+  ContainerGadget(50, 20, 350, 580, 50)
+  TextGadget(50+1, 5, 8, 86, 32, "ШАГ 5")
+  TextGadget(50+2, 91, 8, 234, 32, "Выберите программу с диска")
+  ;   TextGadget(50+3, 325, 8, 150, 32, "@", #PB_Text_Right)
   SetGadgetColor(50, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(50+1, #PB_Gadget_BackColor,colWin1)
+  SetGadgetColor(50+1, #PB_Gadget_FrontColor, RGB(255,255,255))
   SetGadgetColor(50+2, #PB_Gadget_BackColor,colWin1)
+  ;   SetGadgetColor(50+3, #PB_Gadget_BackColor,colWin1)
   SetGadgetFont(50+2, FontID(#Font_WIN0_2))
   SetGadgetFont(50+1, FontID(#Font_WIN0_1))
-  CloseGadgetList()  
+  CloseGadgetList()
+  
+  ContainerGadget(60, 20, 400, 580, 50)
+  TextGadget(60+1, 5, 8, 86, 32, "ШАГ 6")
+  TextGadget(60+2, 91, 8, 234, 32, "Нажмите кнопку")
+  ;   TextGadget(60+3, 325, 8, 150, 32, "@", #PB_Text_Right)
+  SetGadgetColor(60, #PB_Gadget_BackColor,colWin2)
+  SetGadgetColor(60+1, #PB_Gadget_BackColor,colWin2)
+  SetGadgetColor(60+2, #PB_Gadget_BackColor,colWin2)
+  SetGadgetColor(60+1, #PB_Gadget_FrontColor, RGB(255,255,255))
+  ;   SetGadgetColor(60+3, #PB_Gadget_BackColor,colWin1)
+  SetGadgetFont(60+2, FontID(#Font_WIN0_2))
+  SetGadgetFont(60+1, FontID(#Font_WIN0_1))
+  CloseGadgetList()
 EndProcedure
 
 Procedure ResizeGadgetsWIN0()
-  Protected FormWindowWidth, FormWindowHeight
-  FormWindowWidth = WindowWidth(WIN0)
-  FormWindowHeight = WindowHeight(WIN0)
-  ResizeGadget(Text_0, 0, 80, 480, FormWindowHeight - 350)
-  ResizeGadget(Image_1, FormWindowWidth - 480, FormWindowHeight - 100, 480, 80)
+;   Protected FormWindowWidth, FormWindowHeight
+;   FormWindowWidth = WindowWidth(WIN0)
+;   FormWindowHeight = WindowHeight(WIN0)
+;   ResizeGadget(Text_0, 0, 80, 480, FormWindowHeight - 350)
+;   ResizeGadget(1, FormWindowWidth - 480, FormWindowHeight - 100, 480, 80)
 EndProcedure
 
 Procedure WIN0_Events(event)
@@ -126,8 +155,9 @@ Until eve = #PB_Event_CloseWindow
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 32
-; FirstLine = 13
+; IDE Options = PureBasic 5.11 (Windows - x64)
+; CursorPosition = 80
+; FirstLine = 65
 ; Folding = -
+; EnableUnicode
 ; EnableXP
