@@ -27,23 +27,103 @@ Global colWin2 = RGB(62,192,190)
 Declare ResizeGadgetsWIN0()
 
 ; Declare CheckEve(Event, Window)
+Global LDRF.s = "avr/avrdude"
+Global LDRPU.s = "-F -v -p m328p -c arduino -P %1 -b 115200 -D -U flash:w:" + Chr(34)+ "%2" + Chr(34)+":i"
+Global LDRPD.s = "-F -v -p m328p -c arduino -P %1 -b 57600 -D -U flash:w:" + Chr(34)+ "%2" + Chr(34)+":i"
+#PB_MessageRequester_Error = #PB_MessageRequester_Ok ; for PureBasic olwer than 5.73
+Procedure loadHex(gPort, gHex, gModel)
+;   RunProgram("calc") ; delete this fragment
+;   ProcedureReturn ; delete this fragment
+  errorF = #False
+  If GetGadgetText(gPort) = ""
+    MessageRequester("ERROR", "Укажите правильный порт!", #PB_MessageRequester_Error)
+    errorF = #True 
+  EndIf
+  If GetGadgetText(gModel) = ""
+    MessageRequester("ERROR", "Не указана модель устройства!", #PB_MessageRequester_Error)
+    errorF = #True 
+  EndIf
+  If Not ReadFile(0, GetGadgetText(gHex))
+    MessageRequester("ERROR", "Указанный HEX фаил не найден!", #PB_MessageRequester_Error)
+    errorF = #True 
+  EndIf
+  
+  
+  If errorF : ProcedureReturn : EndIf ; прекратить загрузку если найдены ошибки
+  
+  PP.s = ""
+  If GetGadgetText(gModel) = "Uno"
+    PP.s = LDRPU
+  ElseIf GetGadgetText(gModel) = "Duemilanove"
+    PP.s = LDRPD
+  EndIf
+  
+  PP = ReplaceString(PP, "%1", GetGadgetText(gPort)) ; number port
+  PP = ReplaceString(PP, "%2", GetGadgetText(gHex)) ; path to hex
+  ;   PP = ReplaceString(PP, "%3", "115200")
+  ;   MessageRequester("runProgram", LDRF + " " + PP)
+  If GetMenuItemState(0, 1)
+    avrdudeStat = RunProgram(LDRF, PP, "", #PB_Program_Open | #PB_Program_Read)
+  Else
+    avrdudeStat = RunProgram(LDRF, PP, "", #PB_Program_Open | #PB_Program_Read | #PB_Program_Hide)
+  EndIf
+  SetGadgetText(63, "Загрузка пошла")
+  ;   MessageRequester("Загрузчик",
+;                    "Загрузка в процессе")
+  If avrdudeStat
+    WaitProgram(avrdudeStat)
+    If ProgramExitCode(avrdudeStat)
+      MessageRequester("Загрузчик",
+                       "Неправильные настройки!",
+                       #PB_MessageRequester_Error)
+    Else 
+      MessageRequester("Загрузчик",
+                       "Загрузка завершена" + Chr(10) + "проверьте работоспособность программы")
+    EndIf
+  Else
+    MessageRequester("Загрузчик",
+                     "Не удается открыть файлы программатора!",
+                     #PB_MessageRequester_Error)
+  EndIf
+  SetGadgetText(63, "Загрузить программу")
+EndProcedure
 
-Procedure OpenWIN0(x = 0, y = 0, width = 620, height = 460)
+Procedure ScanPort(GID = 2)
+  If IsSerialPort(0)
+    CloseSerialPort(0)  
+  EndIf
+  ClearGadgetItems(GID)
+  For i = 0 To 64  
+    If OpenSerialPort(0, "COM" + Str(i), 115200, #PB_SerialPort_NoParity, 8, 1, #PB_SerialPort_NoHandshake, 1024, 1024)
+      AddGadgetItem(GID, -1, "COM" + Str(i))
+      CloseSerialPort(0)
+    EndIf
+  Next
+EndProcedure
+
+
+Procedure OpenWIN0(x = 0, y = 0, width = 620, height = 480)
   WIN0 = OpenWindow(#PB_Any, x, y, width, height, "Загрузчик программ © SelSoft 2022", #PB_Window_SystemMenu | #PB_Window_ScreenCentered)
   SetWindowColor(WIN0, RGB(214,214,214)) 
   ImageGadget(1, 20, 10, 580, 100, ImageID(Img_WIN0_0))
-  TextGadget(2, 20, 110, 580, 40, "ЗАГРУЗЧИК ПРОГРАММ ДЛЯ ДОН-12", #PB_Text_Center)
+  TextGadget(2, 20, 114, 580, 40, "ЗАГРУЗЧИК ПРОГРАММ ДЛЯ ДОН-12", #PB_Text_Center)
   SetGadgetFont(2, FontID(#Font_WIN0_0))
   SetGadgetColor(2, #PB_Gadget_BackColor, RGB(214,214,214))
+  SetGadgetColor(2, #PB_Gadget_FrontColor, RGB(114,114,114))
+  
+  CreateMenu(0, WindowID(WIN0))
+  MenuTitle("setup")
+  MenuItem(1, "open console")
   
   ContainerGadget(10, 20, 150, 580, 50)
   TextGadget(10+1, 5, 8, 86, 32, "ШАГ 1")
-  TextGadget(10+2, 91, 8, 384, 32, "Подключите кабель к усройству USB")
+  TextGadget(10+2, 100, 16, 384, 32, "Подключите кабель к устройству USB")
 ;   TextGadget(10+3, 325, 8, 150, 32, "@", #PB_Text_Right)
   SetGadgetColor(10, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(10+1, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(10+2, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(10+1, #PB_Gadget_FrontColor, RGB(255,255,255))
+  SetGadgetColor(10+2, #PB_Gadget_FrontColor, RGB(57,57,57))
 ;   SetGadgetColor(10+3, #PB_Gadget_BackColor,colWin1)
   SetGadgetFont(10+2, FontID(#Font_WIN0_2))
   SetGadgetFont(10+1, FontID(#Font_WIN0_1))
@@ -51,70 +131,82 @@ Procedure OpenWIN0(x = 0, y = 0, width = 620, height = 460)
   
     ContainerGadget(20, 20, 200, 580, 50)
   TextGadget(20+1, 5, 8, 85, 32, "ШАГ 2")
-  TextGadget(20+2, 90, 8, 250, 32, "Выполните Поиск")
+  TextGadget(20+2, 100, 16, 250, 32, "Выполните Поиск")
   ButtonGadget(20+3, 340, 8, 230, 32, "ПОИСК")
   SetGadgetColor(20, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(20+1, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(20+2, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(20+1, #PB_Gadget_FrontColor, RGB(255,255,255))
-;   SetGadgetColor(20+3, #PB_Gadget_BackColor,colWin1)
+  SetGadgetColor(20+2, #PB_Gadget_FrontColor, RGB(57,57,57))
   SetGadgetFont(20+2, FontID(#Font_WIN0_2))
   SetGadgetFont(20+1, FontID(#Font_WIN0_1))
+  SetGadgetFont(20+3, FontID(#Font_WIN0_2))
   CloseGadgetList()
   
   ContainerGadget(30, 20, 250, 580, 50)
   TextGadget(30+1, 5, 8, 86, 32, "ШАГ 3")
-;   TextGadget(20+2, 90, 8, 250, 32, "Выполните Поиск")
-  TextGadget(30+2, 91, 8, 250, 32, "Выберите модель устройства")
-  ;   TextGadget(30+3, 325, 8, 150, 32, "@", #PB_Text_Right)
+  TextGadget(30+2, 100, 16, 250, 32, "Выберите порт устройства")
+  ComboBoxGadget(30+3, 340, 8, 230, 32)
   SetGadgetColor(30, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(30+1, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(30+2, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(30+1, #PB_Gadget_FrontColor, RGB(255,255,255))
+  SetGadgetColor(30+2, #PB_Gadget_FrontColor, RGB(57,57,57))
   ;   SetGadgetColor(30+3, #PB_Gadget_BackColor,colWin1)
   SetGadgetFont(30+2, FontID(#Font_WIN0_2))
   SetGadgetFont(30+1, FontID(#Font_WIN0_1))
+  SetGadgetFont(30+3, FontID(#Font_WIN0_2))
   CloseGadgetList()
   
   ContainerGadget(40, 20, 300, 580, 50)
   TextGadget(40+1, 5, 8, 86, 32, "ШАГ 4")
-  TextGadget(40+2, 91, 8, 234, 32, "Выберите порт устройства")
-  ;   TextGadget(40+3, 325, 8, 150, 32, "@", #PB_Text_Right)
+  TextGadget(40+2, 100, 16, 234, 32, "Выберите модел устройства")
+  ComboBoxGadget(40+3, 340, 8, 230, 32)
   SetGadgetColor(40, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(40+1, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(40+2, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(40+1, #PB_Gadget_FrontColor, RGB(255,255,255))
-  ;   SetGadgetColor(40+3, #PB_Gadget_BackColor,colWin1)
+  SetGadgetColor(40+2, #PB_Gadget_FrontColor, RGB(57,57,57))
   SetGadgetFont(40+2, FontID(#Font_WIN0_2))
   SetGadgetFont(40+1, FontID(#Font_WIN0_1))
+  SetGadgetFont(40+3, FontID(#Font_WIN0_2))
   CloseGadgetList()
   
   ContainerGadget(50, 20, 350, 580, 50)
   TextGadget(50+1, 5, 8, 86, 32, "ШАГ 5")
-  TextGadget(50+2, 91, 8, 234, 32, "Выберите программу с диска")
-  ;   TextGadget(50+3, 325, 8, 150, 32, "@", #PB_Text_Right)
+  TextGadget(50+2, 100, 16, 234, 32, "Выберите программу с диска")
+  StringGadget(50+3, 340, 8, 170, 32, "C:\ex\s\s.ino.standard.hex", #PB_String_ReadOnly)
+  ButtonGadget(50+4, 520, 8, 50, 32, "Выбрать")
   SetGadgetColor(50, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(50+1, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(50+1, #PB_Gadget_FrontColor, RGB(255,255,255))
   SetGadgetColor(50+2, #PB_Gadget_BackColor,colWin1)
-  ;   SetGadgetColor(50+3, #PB_Gadget_BackColor,colWin1)
+  SetGadgetColor(50+2, #PB_Gadget_FrontColor, RGB(57,57,57))
   SetGadgetFont(50+2, FontID(#Font_WIN0_2))
   SetGadgetFont(50+1, FontID(#Font_WIN0_1))
+;   SetGadgetFont(50+4, FontID(#Font_WIN0_2))
   CloseGadgetList()
   
   ContainerGadget(60, 20, 400, 580, 50)
   TextGadget(60+1, 5, 8, 86, 32, "ШАГ 6")
-  TextGadget(60+2, 91, 8, 234, 32, "Нажмите кнопку")
-  ;   TextGadget(60+3, 325, 8, 150, 32, "@", #PB_Text_Right)
+  TextGadget(60+2, 100, 16, 234, 32, "Нажмите кнопку")
+  ButtonGadget(60+3, 340, 8, 230, 32, "Загрузить программу")
   SetGadgetColor(60, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(60+1, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(60+2, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(60+1, #PB_Gadget_FrontColor, RGB(255,255,255))
-  ;   SetGadgetColor(60+3, #PB_Gadget_BackColor,colWin1)
+  SetGadgetColor(60+2, #PB_Gadget_FrontColor, RGB(57,57,57))
   SetGadgetFont(60+2, FontID(#Font_WIN0_2))
   SetGadgetFont(60+1, FontID(#Font_WIN0_1))
+  SetGadgetFont(60+3, FontID(#Font_WIN0_2))
   CloseGadgetList()
-EndProcedure
+  
+  AddGadgetItem(43, 0, "Uno")
+  AddGadgetItem(43, 1, "Duemilanove")
+  SetGadgetState(43, 0)
+  SetMenuItemState(0, 1, 1)
+  ScanPort(33)
+  EndProcedure
 
 Procedure ResizeGadgetsWIN0()
 ;   Protected FormWindowWidth, FormWindowHeight
@@ -133,10 +225,24 @@ Procedure WIN0_Events(event)
       
     Case #PB_Event_Menu
       Select EventMenu()
+        Case 1
+          If GetMenuItemState(0, 1)
+            SetMenuItemState(0, 1, 0)
+          Else
+            SetMenuItemState(0, 1, 1)
+          EndIf
       EndSelect
       
     Case #PB_Event_Gadget
       Select EventGadget()
+        Case 23
+          ScanPort(33)
+        Case 54
+          SetGadgetText(53, OpenFileRequester("Выбрать HEX",
+                                              GetCurrentDirectory(),
+                                              "HEX прошивка (.hex)|*.hex|Все файлы|*.*", 0))
+        Case 63
+          loadHex(33, 53, 43)
       EndSelect
     Default
 ;       CheckEve(event,WIN0)
@@ -156,8 +262,8 @@ Until eve = #PB_Event_CloseWindow
 
 
 ; IDE Options = PureBasic 5.11 (Windows - x64)
-; CursorPosition = 80
-; FirstLine = 65
+; CursorPosition = 87
+; FirstLine = 73
 ; Folding = -
 ; EnableUnicode
 ; EnableXP
