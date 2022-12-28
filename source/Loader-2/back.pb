@@ -97,6 +97,7 @@ Procedure loadHex(gPort, gHex, gModel, FileHexP$)
 EndProcedure
 
 Procedure ScanPort(GID = 2)
+  DisableGadget(23, #True)
   If IsSerialPort(0)
     CloseSerialPort(0)  
   EndIf
@@ -106,7 +107,9 @@ Procedure ScanPort(GID = 2)
       AddGadgetItem(GID, -1, "COM" + Str(i))
       CloseSerialPort(0)
     EndIf
+    Delay(2)
   Next
+  DisableGadget(23, #False)
 EndProcedure
 
 
@@ -247,6 +250,7 @@ Procedure WIN0_Events(event)
       Select EventGadget()
         Case 23
           ScanPort(33)
+;           MessageRequester("Сканер", "сканирование завершено, переходите к шагу 3")
         Case 54
           FileP$ = OpenFileRequester("Выбрать HEX",
                                               GetCurrentDirectory(),
@@ -273,8 +277,10 @@ Until eve = #PB_Event_CloseWindow
 
 
 ; IDE Options = PureBasic 5.11 (Windows - x64)
-; CursorPosition = 167
-; FirstLine = 163
+; CursorPosition = 247
+; FirstLine = 211
 ; Folding = -
 ; EnableUnicode
 ; EnableXP
+; UseIcon = logo-low.ico
+; Executable = C:\Users\Ender\Desktop\loader2\loader2.exe
