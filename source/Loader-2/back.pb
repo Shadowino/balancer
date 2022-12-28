@@ -24,6 +24,7 @@ LoadFont(#Font_WIN0_1,"Arial", 20)
 LoadFont(#Font_WIN0_2,"Arial", 12)
 Global colWin1 = RGB(135,195,193)
 Global colWin2 = RGB(62,192,190)
+Global FileP$
 Declare ResizeGadgetsWIN0()
 
 ; Declare CheckEve(Event, Window)
@@ -31,7 +32,7 @@ Global LDRF.s = "avr/avrdude"
 Global LDRPU.s = "-F -v -p m328p -c arduino -P %1 -b 115200 -D -U flash:w:" + Chr(34)+ "%2" + Chr(34)+":i"
 Global LDRPD.s = "-F -v -p m328p -c arduino -P %1 -b 57600 -D -U flash:w:" + Chr(34)+ "%2" + Chr(34)+":i"
 #PB_MessageRequester_Error = #PB_MessageRequester_Ok ; for PureBasic olwer than 5.73
-Procedure loadHex(gPort, gHex, gModel)
+Procedure loadHex(gPort, gHex, gModel, FileHexP$)
 ;   RunProgram("calc") ; delete this fragment
 ;   ProcedureReturn ; delete this fragment
   errorF = #False
@@ -43,10 +44,15 @@ Procedure loadHex(gPort, gHex, gModel)
     MessageRequester("ERROR", "Не указана модель устройства!", #PB_MessageRequester_Error)
     errorF = #True 
   EndIf
-  If Not ReadFile(0, GetGadgetText(gHex))
+  If Not ReadFile(0,FileHexP$)
     MessageRequester("ERROR", "Указанный HEX фаил не найден!", #PB_MessageRequester_Error)
     errorF = #True 
   EndIf
+  
+;   If Not ReadFile(0, GetGadgetText(gHex))
+;     MessageRequester("ERROR", "Указанный HEX фаил не найден!", #PB_MessageRequester_Error)
+;     errorF = #True 
+;   EndIf
   
   
   If errorF : ProcedureReturn : EndIf ; прекратить загрузку если найдены ошибки
@@ -59,7 +65,8 @@ Procedure loadHex(gPort, gHex, gModel)
   EndIf
   
   PP = ReplaceString(PP, "%1", GetGadgetText(gPort)) ; number port
-  PP = ReplaceString(PP, "%2", GetGadgetText(gHex)) ; path to hex
+;   PP = ReplaceString(PP, "%2", GetGadgetText(gHex)) ; path to hex 
+  PP = ReplaceString(PP, "%2", FileHexP$) ; path to hex 
   ;   PP = ReplaceString(PP, "%3", "115200")
   ;   MessageRequester("runProgram", LDRF + " " + PP)
   If GetMenuItemState(0, 1)
@@ -74,7 +81,8 @@ Procedure loadHex(gPort, gHex, gModel)
     WaitProgram(avrdudeStat)
     If ProgramExitCode(avrdudeStat)
       MessageRequester("Загрузчик",
-                       "Неправильные настройки!",
+                       "Не удалось прошить Устройтво!" + Chr(10) +
+                       "Проверьте выбранный порт, и переподключите Устройтво",
                        #PB_MessageRequester_Error)
     Else 
       MessageRequester("Загрузчик",
@@ -131,8 +139,8 @@ Procedure OpenWIN0(x = 0, y = 0, width = 620, height = 480)
   
     ContainerGadget(20, 20, 200, 580, 50)
   TextGadget(20+1, 5, 8, 85, 32, "ШАГ 2")
-  TextGadget(20+2, 100, 16, 250, 32, "Выполните Поиск")
-  ButtonGadget(20+3, 340, 8, 230, 32, "ПОИСК")
+  TextGadget(20+2, 100, 16, 250, 32, "Выполните поиск портов")
+  ButtonGadget(20+3, 340, 8, 230, 32, "Поиск портов")
   SetGadgetColor(20, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(20+1, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(20+2, #PB_Gadget_BackColor,colWin2)
@@ -160,7 +168,7 @@ Procedure OpenWIN0(x = 0, y = 0, width = 620, height = 480)
   
   ContainerGadget(40, 20, 300, 580, 50)
   TextGadget(40+1, 5, 8, 86, 32, "ШАГ 4")
-  TextGadget(40+2, 100, 16, 234, 32, "Выберите модел устройства")
+  TextGadget(40+2, 100, 16, 234, 32, "Выберите модель устройства")
   ComboBoxGadget(40+3, 340, 8, 230, 32)
   SetGadgetColor(40, #PB_Gadget_BackColor,colWin2)
   SetGadgetColor(40+1, #PB_Gadget_BackColor,colWin2)
@@ -175,15 +183,17 @@ Procedure OpenWIN0(x = 0, y = 0, width = 620, height = 480)
   ContainerGadget(50, 20, 350, 580, 50)
   TextGadget(50+1, 5, 8, 86, 32, "ШАГ 5")
   TextGadget(50+2, 100, 16, 234, 32, "Выберите программу с диска")
-  StringGadget(50+3, 340, 8, 170, 32, "C:\ex\s\s.ino.standard.hex", #PB_String_ReadOnly)
-  ButtonGadget(50+4, 520, 8, 50, 32, "Выбрать")
+  StringGadget(50+3, 340, 8, 150, 32, "example\file.hex", #PB_String_ReadOnly)
+  ButtonGadget(50+4, 495, 8, 75, 32, "Выбрать")
   SetGadgetColor(50, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(50+1, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(50+1, #PB_Gadget_FrontColor, RGB(255,255,255))
   SetGadgetColor(50+2, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(50+2, #PB_Gadget_FrontColor, RGB(57,57,57))
-  SetGadgetFont(50+2, FontID(#Font_WIN0_2))
   SetGadgetFont(50+1, FontID(#Font_WIN0_1))
+  SetGadgetFont(50+2, FontID(#Font_WIN0_2))
+;   SetGadgetFont(50+3, FontID(#Font_WIN0_2))
+  SetGadgetFont(50+4, FontID(#Font_WIN0_2))
 ;   SetGadgetFont(50+4, FontID(#Font_WIN0_2))
   CloseGadgetList()
   
@@ -203,7 +213,7 @@ Procedure OpenWIN0(x = 0, y = 0, width = 620, height = 480)
   
   AddGadgetItem(43, 0, "Uno")
   AddGadgetItem(43, 1, "Duemilanove")
-  SetGadgetState(43, 0)
+;   SetGadgetState(43, 0)
   SetMenuItemState(0, 1, 1)
   ScanPort(33)
   EndProcedure
@@ -238,11 +248,12 @@ Procedure WIN0_Events(event)
         Case 23
           ScanPort(33)
         Case 54
-          SetGadgetText(53, OpenFileRequester("Выбрать HEX",
+          FileP$ = OpenFileRequester("Выбрать HEX",
                                               GetCurrentDirectory(),
-                                              "HEX прошивка (.hex)|*.hex|Все файлы|*.*", 0))
+                                              "HEX прошивка (.hex)|*.hex|Все файлы|*.*", 0)
+          SetGadgetText(53, GetFilePart(FileP$))
         Case 63
-          loadHex(33, 53, 43)
+          loadHex(33, 53, 43, FileP$)
       EndSelect
     Default
 ;       CheckEve(event,WIN0)
@@ -262,8 +273,8 @@ Until eve = #PB_Event_CloseWindow
 
 
 ; IDE Options = PureBasic 5.11 (Windows - x64)
-; CursorPosition = 87
-; FirstLine = 73
+; CursorPosition = 167
+; FirstLine = 163
 ; Folding = -
 ; EnableUnicode
 ; EnableXP
