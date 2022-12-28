@@ -87,10 +87,10 @@ EndProcedure
 
 Procedure OpenWindow_0(x = 0, y = 0, width = 440, height = 184)
   OpenWindow(0, x, y, width, height, "Загрузчик программ © SelSoft 2022", #PB_Window_SystemMenu | #PB_Window_ScreenCentered | #PB_Window_MinimizeGadget)
-  TextGadget(100, 8, 8, 400, 32, "Подключите ARDUINO", #PB_Text_Border)
+  TextGadget(100, 8, 8, 400, 32, "Подключите устройство", #PB_Text_Border)
   TextGadget(101, 8, 48, 80, 24, "Порт")
-  TextGadget(103, 8, 80, 80, 24, "Тип модуля")
-  TextGadget(102, 8, 112, 80, 24, "HEX фаил")
+  TextGadget(103, 8, 80, 80, 24, "Тип ")
+  TextGadget(102, 8, 112, 80, 24, "Фаил ")
   ComboBoxGadget(2, 96, 48, 200, 24)
   ComboBoxGadget(3, 96, 80, 200, 24)
   StringGadget(11, 96, 112, 200, 24, "firmware/example.hex", #PB_String_ReadOnly)
@@ -154,9 +154,10 @@ Until eve = #PB_Event_CloseWindow
 
 
 ; IDE Options = PureBasic 5.11 (Windows - x64)
-; CursorPosition = 13
+; CursorPosition = 92
+; FirstLine = 57
 ; Folding = -
 ; EnableUnicode
 ; EnableXP
-; UseIcon = icon-nobackground.ico
+; UseIcon = icon.ico
 ; Executable = loader.exe

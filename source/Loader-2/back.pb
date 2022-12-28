@@ -186,7 +186,7 @@ Procedure OpenWIN0(x = 0, y = 0, width = 620, height = 480)
   ContainerGadget(50, 20, 350, 580, 50)
   TextGadget(50+1, 5, 8, 86, 32, "ШАГ 5")
   TextGadget(50+2, 100, 16, 234, 32, "Выберите программу с диска")
-  StringGadget(50+3, 340, 8, 150, 32, "example\file.hex", #PB_String_ReadOnly)
+  StringGadget(50+3, 340, 8, 150, 32, "", #PB_String_ReadOnly)
   ButtonGadget(50+4, 495, 8, 75, 32, "Выбрать")
   SetGadgetColor(50, #PB_Gadget_BackColor,colWin1)
   SetGadgetColor(50+1, #PB_Gadget_BackColor,colWin1)
@@ -277,8 +277,8 @@ Until eve = #PB_Event_CloseWindow
 
 
 ; IDE Options = PureBasic 5.11 (Windows - x64)
-; CursorPosition = 247
-; FirstLine = 211
+; CursorPosition = 188
+; FirstLine = 163
 ; Folding = -
 ; EnableUnicode
 ; EnableXP
