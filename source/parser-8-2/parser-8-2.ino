@@ -4,11 +4,11 @@
 
 // PID struct
 // тут все коэфиценты
-float PIDKP = 0.1297;
-float PIDKI = 0;
-float PIDKD = 0;
-float PIDI;
-float PIDD;
+uint16_t PIDKP = 0.1297;
+uint16_t PIDKI = 0;
+uint16_t PIDKD = 0;
+uint16_t PIDI;
+uint16_t PIDD;
 uint32_t PIDdt;
 uint16_t PIDerr;
 
@@ -101,22 +101,39 @@ class message {
       return type;
     }
 
+    //    новые функции (корректные но опасные! нет совметсимости с прошлыми версиями!)
+    //    int16_t getX() {
+    //      return (data[4] | (data[3] << 8));
+    //    }
+    //    int16_t getY() {
+    //      return (data[6] | (data[5] << 8));
+    //    }
+    //    int16_t getY() {
+    //      return (data[8] | (data[7] << 8));
+    //    }
+
     int16_t getY() {
       if (type == 2) {
         return (data[4] | (data[3] << 8));
       } else {
         return (data[5] | (data[6] << 8));
       }
-
     }
-
     int16_t getX() {
       if (type == 2) {
         return (data[6] | (data[5] << 8));
       } else {
         return (data[3] | (data[4] << 8));
       }
+    }
 
+    uint16_t getPID() {
+      return ((data[3] << 8) | (data[4]));
+    }
+    uint16_t getPIDall() {
+      PIDKP = ((data[3] << 8) | (data[4]));
+      PIDKI = ((data[5] << 8) | (data[6]));
+      PIDKD = ((data[7] << 8) | (data[8]));
     }
 
 };
@@ -138,42 +155,20 @@ int16_t AY, DY, AX, DX;
 long int SCY, SCX;
 long unsigned int stpdt, stpdtx, dtled;
 long unsigned int dt, dtx, dtl;
-unsigned int stpdel;
+unsigned int stpdely;
 bool enabled = true;
 uint32_t dtbyte;
 uint32_t DTMILLIS;
+int PIDmode = 3;
+int SSS = 0;
 
 message nw;
 message pack;
 
 void loop() {
 
-  while (0) {
-    dtl = millis();
-    PORTD |= (1 << 7);
-    delay(250);
-    PORTD &= ~(1 << 7);
-    delay(250);
-    if (Serial.available()) {
-      Serial.read();
-      PORTD |= (1 << 7); //13
-    } else {
-      PORTD &= ~(1 << 7); //13
-    }
-  }
-
-
   DTMILLIS = millis();
-  { // ================= LED INDICATOR =====
-    //    if (DTMILLIS - dtled > 500) {
-    //      dtled = DTMILLIS;
-    //      if (PIND & (1 << 7)) {
-    //        PORTD &= ~(1 << 7);
-    //      } else {
-    //        PORTD |= (1 << 7);
-    //      }
-    //    }
-  }
+
 
 
   { // ================= RS485 protocol handler ===============
@@ -204,30 +199,35 @@ void loop() {
 
   { // ================= PID controller ==============
     if (pack.mready and pack.type == 2) {
-      AY = pack.getY();
-      AY -= DY; // Применить поправку угла
-      // AY -> Ошибка регулирования
-      SCY = 0; // Колво шагов
-      // PID Регулятор
+      // PID Регулятор -------- AY ONLY
       // SCY = AY*PIDKP + PIDI*PIDKI + PIDD*PIDKD // управляющий сигнал
       // PIDI = PIDI + AY*(DTMILLIS - PIDdt) // I состовляющая
       // PIDdt = DTMILLIS  | (time) // прошлое время измерения
       // PIDD = (AY - PIDerr)/(DTMILLIS - PIDdt) // D Состовляющая
-      // время везде измеряеться в миллисикундах, коэфициенты задаются в начале коде при компиляции
-      PIDI = PIDI + AY * (DTMILLIS - PIDdt);
-      PIDD = (AY - PIDerr) * (DTMILLIS - PIDdt);
-      SCY = (uint32_t)(AY * PIDKP + PIDI * PIDKI + PIDD * PIDKD);
-      PIDerr = AY;
-      PIDdt = DTMILLIS;
-
-      if (SCY >= 200) stpdel = 40;
-      else if (SCY <= 10) stpdel = 1000;
-      else stpdel = 10000 / SCY;
-
-
-      AX = pack.getX();
-      AX -= DX;
-      SCX = abs(AX) / TOSTEPY;
+      // время везде измеряеться в миллисикундах
+      AY = pack.getY();
+      AY -= DY;
+      SCY = 0;
+      if (PIDmode == 1) { // stepmode
+        PIDI = PIDI + AY * (DTMILLIS - PIDdt);
+        PIDD = (AY - PIDerr) * (DTMILLIS - PIDdt);
+        SCY = (uint32_t)(AY * PIDKP + PIDI * PIDKI + PIDD * PIDKD);
+        PIDerr = AY;
+        PIDdt = DTMILLIS;
+        if (SCY >= 125) stpdely = 40;
+        else if (SCY <= 10) stpdely = 1000;
+        else stpdely = 10000 / SCY;
+      } else if (PIDmode == 2) { // speedmode
+        PIDI = PIDI + AY * (DTMILLIS - PIDdt);
+        PIDD = (AY - PIDerr) * (DTMILLIS - PIDdt);
+        stpdely = (uint32_t)(AY * PIDKP + PIDI * PIDKI + PIDD * PIDKD);
+        PIDerr = AY;
+        PIDdt = DTMILLIS;
+        stpdely = (stpdely < 40) ? 40 : ((stpdely > 1000) ? 1000 : stpdely );
+        SCY = (DTMILLIS - PIDdt) / stpdely;
+      } else { // linear (defoult)
+        SCY = abs(AY) / TOSTEPY;
+      }
 
       if (AY > 0) {
         PORTB |= (1 << 5);
@@ -235,87 +235,82 @@ void loop() {
         PORTB &= ~(1 << 5);
       }
 
-      if (AX < 0) {
-        PORTB |= (1 << 0); //dir
-      } else {
-        PORTB &= ~(1 << 0); //dir
-      }
-
-
     } else if (pack.mready and pack.type == 3) {
-      if (pack.data[1] == 0x06) {
+      if (pack.data[1] == 0x06) { // сдвиг по двум осям
         DY = pack.getY();
         DX = pack.getX();
-        //        DY = (DY > 8100) ? 8100 : ((DY < -8100) ? -8100 : DY);
-      } else if (pack.data[1] == 0x01) {
+      } else if (pack.data[1] == 0x01) { // старт
         enabled = true;
-      } else if (pack.data[1] == 0x02) {
+      } else if (pack.data[1] == 0x02) { // стоп
         enabled = false;
+      } else if (pack.data[1] == 0x03) { // установить PIDP
+        PIDKP = pack.getPID();
+      } else if (pack.data[1] == 0x04) { // установить PIDI
+        PIDKI = pack.getPID();
+      } else if (pack.data[1] == 0x05) { // установить PIDD
+        PIDKD = pack.getPID();
+      } else if (pack.data[1] == 0x07) { // установить все параметры PID (PIDP PIDI PIDD)
+        pack.getPIDall();
+      } else if (pack.data[1] == 0x08) {
+        // выбор режима работы PID
+        // (1 -> PIDSTEP) (2 -> PIDSPEED) (3 -> LINEAR)
+        PIDmode = pack.getPID();
+        PIDI = 0;
+      } else if (pack.data[1] == 0x09) {
+        // SoftwareSerialSetting
+        SSS = pack.data[3];
       }
     }
 
   }
 
   dt = micros();
-  dtx = dt;
-  //  dtl = millis();
   { // ================== Step controller
-    //    if (dtl - dtled > 500) {
-    //      dtled = dtl;
-    //      if (PINB & (1 << 7)) {
-    //        PORTD &= ~(1 << 7);
-    //      } else {
-    //        PORTD |= (1 << 7);
-    //      }
-    //
-    //    }
 
-    //    if (!enabled and dt - stpdt > 100) {
-    //      stpdt = dt;
-    //      if (PINB & (1 << 5)) {
-    //        PORTB |= (1 << 5);
-    //      } else {
-    //        PORTB &= ~(1 << 5);
-    //      }
-    //    }
-
-    if (dt - stpdt > stpdel and SCY > 1 and enabled) {
+    if (dt - stpdt > stpdely and SCY > 1 and enabled) {
       stpdt = dt;
       if (PINB & (1 << 4)) {
         PORTB &= ~(1 << 4);
         SCY--;
-        if (SCY >= 125) stpdel = 40;
-        else if (SCY <= 10) stpdel = 1000;
-        else stpdel = 10000 / SCY;
+        //if (SCY >= 125) stpdel = 40;
+        //else if (SCY <= 10) stpdel = 1000;
+        //else stpdel = 10000 / SCY;
       } else {
         PORTB |= (1 << 4);
       }
     }
 
-    if (dtx - stpdtx > 40 and SCX > 1 and enabled) {
-      stpdtx = dtx;
-      if (PINB & (1 << 1)) {
-        PORTB &= ~(1 << 1); //pul
-        SCX--;
-      } else {
-        PORTB |= (1 << 1);
-      }
-    }
+    //    if (dt - stpdtx > stpdelx and SCX > 1 and enabled) {
+    //      stpdtx = dt;
+    //      if (PINB & (1 << 1)) {
+    //        PORTB &= ~(1 << 1); //pul
+    //        SCX--;
+    //      } else {
+    //        PORTB |= (1 << 1);
+    //      }
+    //  }
 
 
-  } // ================== asdcad ===============
+  } // ================== Step controller ===============
 
   { // ================= SoftwareSerial debug ==============
-    if (true and pack.mready) {
-      String snd = String(pack.len) + ":\t";
-      for (int i = 0; i < pack.len; i++) {
-        snd += ((pack.data[i] < 16) ? " 0" : " ") + String(pack.data[i], HEX);
+    if (true and pack.mready and SSS) {
+      String snd = "";
+      if (SSS == 1) {
+        snd = String(pack.len) + ":\t";
+        for (int i = 0; i < pack.len; i++) {
+          snd += ((pack.data[i] < 16) ? " 0" : " ") + String(pack.data[i], HEX);
+        }
+      } else if (SSS == 2) {
+        if (pack.type != 1) {
+          snd = "A: " + String((AY + DY) / 182.041, 2) + " - " + String(DY / 182.041, 2) + " = " + String(AY / 182.041, 2);
+        }
+      } else if (SSS == 3) {
+        if (pack.type != 1) {
+          snd = "P: " + String(PIDKP) + " " + String(PIDKI) + " " + String(PIDKD) + " " + String(SCY) + " " + String(stpdely);
+        }
       }
-
-      //      if (pack.type != 1) {
-      //        String snd = String((AY + DY) / 182.041, 2) + " - " + String(DY / 182.041, 2) + " = " + String(AY / 182.041, 2);
       debug.println(snd);
-      //      }
     }
   } // ================= SS debug END ==============
 
