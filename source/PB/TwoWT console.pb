@@ -86,7 +86,7 @@ While 1
   SPBz = ((SPB(7) << 8) | SPB(8))
   
 ;   ans = cr(SPAx) + " ;" + cr(SPAy) + ";" + cr(SPBx) + ";" + cr(SPBy)
-  ans = cr(SPAy) + ";" + cr(-SPBy)
+  ans = cr(SPAx) + ";" + cr(SPBy)
 ;   ans = 
   PrintN(ans)
   If IsFile(0)
@@ -117,7 +117,7 @@ CloseConsole()
 End
 
 ; IDE Options = PureBasic 5.11 (Windows - x86)
-; CursorPosition = 78
-; FirstLine = 64
+; CursorPosition = 88
+; FirstLine = 71
 ; Folding = -
 ; EnableXP

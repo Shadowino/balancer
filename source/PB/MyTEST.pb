@@ -75,6 +75,7 @@ Procedure SerialConnect(x.i) ;procedure thread
       cnt = AvailableSerialPortInput(0) - 1 ; count available bytes
 ;       Debug cnt
       ;     ReadSerialPortData(0, answer, 10)
+      If cnt > 20 : cnt = 0 : EndIf
       For i = 0 To cnt ; read available data and add this in console output
         ReadSerialPortData(0, @bite, 1)
         answer(i) = bite
@@ -149,4 +150,6 @@ Until eve = #PB_Event_CloseWindow
 
 
 ; IDE Options = PureBasic 5.11 (Windows - x86)
+; CursorPosition = 78
+; FirstLine = 72
 ; Folding = -

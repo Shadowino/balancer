@@ -4,9 +4,11 @@
 
 // PID struct
 // тут все коэфиценты
-uint16_t PIDKP = 0.1297;
-uint16_t PIDKI = 0;
-uint16_t PIDKD = 0;
+//float PIDKP = 0.062;
+float PIDKP = 0.062;
+float PIDKI = 0;//0.003;
+//float PIDKI = 0.0001;//0.003;
+float PIDKD = 0.002;
 uint16_t PIDI;
 uint16_t PIDD;
 uint32_t PIDdt;
@@ -127,8 +129,8 @@ class message {
       }
     }
 
-    uint16_t getPID() {
-      return ((data[3] << 8) | (data[4]));
+    float getPID() {
+      return ((data[3] << 8) | (data[4])) / 10000;
     }
     uint16_t getPIDall() {
       PIDKP = ((data[3] << 8) | (data[4]));
@@ -159,7 +161,7 @@ unsigned int stpdely;
 bool enabled = true;
 uint32_t dtbyte;
 uint32_t DTMILLIS;
-int PIDmode = 3;
+int PIDmode = 1;
 int SSS = 0;
 
 message nw;
@@ -209,10 +211,12 @@ void loop() {
       AY -= DY;
       SCY = 0;
       if (PIDmode == 1) { // stepmode
-        PIDI = PIDI + AY * (DTMILLIS - PIDdt);
-        PIDD = (AY - PIDerr) * (DTMILLIS - PIDdt);
-        SCY = (uint32_t)(AY * PIDKP + PIDI * PIDKI + PIDD * PIDKD);
-        PIDerr = AY;
+        //        AY /= 8;
+
+        PIDI = PIDI + abs(AY) * (DTMILLIS - PIDdt) / 1000;
+        PIDD = (abs(AY) - PIDerr) * (DTMILLIS - PIDdt) / 1000;
+        SCY = int(abs(AY) * PIDKP + PIDI * PIDKI + PIDD * PIDKD);
+        PIDerr = abs(AY);
         PIDdt = DTMILLIS;
         if (SCY >= 125) stpdely = 40;
         else if (SCY <= 10) stpdely = 1000;
@@ -227,6 +231,9 @@ void loop() {
         SCY = (DTMILLIS - PIDdt) / stpdely;
       } else { // linear (defoult)
         SCY = abs(AY) / TOSTEPY;
+        if (SCY >= 125) stpdely = 40;
+        else if (SCY <= 10) stpdely = 1000;
+        else stpdely = 10000 / SCY;
       }
 
       if (AY > 0) {
@@ -267,7 +274,7 @@ void loop() {
   dt = micros();
   { // ================== Step controller
 
-    if (dt - stpdt > stpdely and SCY > 1 and enabled) {
+    if (dt - stpdt > stpdely and SCY > 2 and enabled) {
       stpdt = dt;
       if (PINB & (1 << 4)) {
         PORTB &= ~(1 << 4);
